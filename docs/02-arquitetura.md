@@ -18,7 +18,7 @@
 | PDF | **@react-pdf/renderer** no servidor | Relatório gerado sem navegador; versões guardadas no armazenamento privado. |
 | WhatsApp | **WhatsApp Business Platform — Cloud API (Meta)** | Fila de mensagens no banco; modo manual oficial (`wa.me`) até a Meta aprovar os modelos. |
 | Tarefas | Worker interno (a cada 1 min) ou cron externo em `/api/tasks/outbox` | Processa a fila de mensagens da API. Alertas são calculados em tempo real por view. |
-| Testes | **Vitest** (unidade + banco real) e **Playwright** (ponta a ponta no celular) | 43 testes de unidade/banco + 10 cenários de ponta a ponta. |
+| Testes | **Vitest** (unidade + banco real) e **Playwright** (ponta a ponta no celular) | 57 testes de unidade/banco + 13 cenários de ponta a ponta. |
 | Implantação | **Docker Compose**: app + Postgres + Caddy (HTTPS automático) + backup diário | Um comando sobe tudo num VPS. Veja [08-implantacao.md](08-implantacao.md). |
 
 ### Por que trocamos Supabase Auth por autenticação própria

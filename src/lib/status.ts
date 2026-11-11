@@ -120,3 +120,11 @@ export const FUEL = {
   eletrico: "Elétrico",
   outro: "Outro",
 } as const;
+
+export const APPT_STATUS = {
+  agendado: { label: "Agendado", cls: "bg-blue-100 text-blue-900" },
+  confirmado: { label: "Confirmado", cls: "bg-green-100 text-green-900" },
+  compareceu: { label: "Chegou · OS aberta", cls: "bg-zinc-800 text-white" },
+  faltou: { label: "Faltou", cls: "bg-amber-100 text-amber-900" },
+  cancelado: { label: "Cancelado", cls: "bg-zinc-200 text-zinc-600" },
+} as const;

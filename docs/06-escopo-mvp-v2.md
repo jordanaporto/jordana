@@ -49,6 +49,10 @@
 
 **PWA e LGPD** — instalável no celular; anonimização e exportação de dados do cliente; dados no Brasil.
 
+**Agenda** *(adiantada da V2)* — agendamento com confirmação imediata e lembretes 1 dia e 2 horas antes pelo WhatsApp; reagendar, falta, cancelamento e “chegou → abrir OS”.
+
+**Avisos no celular da equipe** *(adiantado da V2)* — Web Push: carro atribuído, serviço aprovado, diagnóstico/serviço concluído, aguardando peça e alertas.
+
 ## 6.2 Versão 2
 
 | Item | Observação |
@@ -56,13 +60,13 @@
 | Aprovação pelo cliente via link no WhatsApp | Tabela e método `link` já previstos |
 | Indicadores gerenciais completos | Tempo médio de diagnóstico/aprovação, produtividade por mecânico, faturamento por período, gráficos de tendência — dados já coletados desde o MVP |
 | Caixa de entrada do WhatsApp (respostas do cliente) | Eventos do webhook já armazenados |
-| Notificações push dos alertas para atendimento/admin | |
+| ~~Notificações push dos alertas~~ | ✅ Entregue no MVP |
 | Modo offline completo | Sincronização posterior |
 | Vários mecânicos por OS e apontamento de horas | |
 | Catálogo de serviços e peças, estoque | |
 | Lembretes de revisão / pós-venda pelo WhatsApp | Ex.: "Já faz 6 meses da sua troca de óleo" |
 | Checklist de entrega com assinatura do cliente na tela | |
 | Transferência de veículo entre clientes (venda do carro) | Histórico já é do veículo |
-| Agendamento de serviços | |
+| ~~Agendamento de serviços~~ | ✅ Entregue no MVP (com lembretes no WhatsApp) |
 | Emissão de NF-e / integração financeira | |
 | Política de retenção e arquivamento de mídia antiga | |

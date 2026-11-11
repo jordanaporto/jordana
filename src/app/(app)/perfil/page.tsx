@@ -3,6 +3,8 @@ import { ROLE_LABEL } from "@/lib/roles";
 import { Alert, Card, PageHeader, SectionTitle } from "@/components/ui";
 import { logoutAction } from "@/app/login/actions";
 import { PasswordForm } from "./password-form";
+import { PushToggle } from "./push-toggle";
+import { pushConfig } from "@/lib/push";
 
 export const metadata = { title: "Perfil" };
 
@@ -15,6 +17,14 @@ export default async function ProfilePage() {
         <div className="mb-4">
           <Alert kind="warning">Sua senha é provisória. Crie uma senha pessoal para continuar usando o sistema.</Alert>
         </div>
+      )}
+      {!user.mustChangePassword && (
+        <>
+          <SectionTitle>Avisos no celular</SectionTitle>
+          <Card id="avisos">
+            <PushToggle publicKey={pushConfig().publicKey} />
+          </Card>
+        </>
       )}
       <SectionTitle>Trocar senha</SectionTitle>
       <Card>

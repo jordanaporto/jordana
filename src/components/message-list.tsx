@@ -22,6 +22,9 @@ export type Msg = {
   order_id?: string | null;
   plate?: string;
   customer_name?: string;
+  send_after?: string;
+  appointment_id?: string | null;
+  appointment_at?: string | null;
 };
 
 function Action({ action, id, label, variant }: { action: (p: ActionState, fd: FormData) => Promise<ActionState>; id: string; label: string; variant: "primary" | "ghost" }) {
@@ -50,12 +53,24 @@ export function MessageList({ messages, canAct, showOrder }: { messages: Msg[]; 
     <ul className="space-y-3">
       {messages.map((m) => {
         const st = MESSAGE_STATUS[m.status];
-        const pendingManual = m.provider === "manual" && (m.status === "na_fila" || m.status === "falhou");
+        const scheduled = m.status === "na_fila" && m.send_after && new Date(m.send_after) > new Date();
+        const pendingManual = !scheduled && m.provider === "manual" && (m.status === "na_fila" || m.status === "falhou");
         return (
           <li key={m.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
             <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
-              <Badge className={st.cls}>{st.label}</Badge>
+              {scheduled ? (
+                <Badge className="bg-blue-100 text-blue-900">
+                  Programada: {new Date(m.send_after!).toLocaleString("pt-BR", { timeZone: "America/Belem", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                </Badge>
+              ) : (
+                <Badge className={st.cls}>{st.label}</Badge>
+              )}
               <span className="text-zinc-500">{m.provider === "manual" ? "Envio manual" : "API oficial"}</span>
+              {showOrder && m.appointment_id && m.appointment_at && (
+                <a href={`/agenda?dia=${new Intl.DateTimeFormat("en-CA", { timeZone: "America/Belem" }).format(new Date(m.appointment_at))}`} className="font-semibold underline">
+                  Agenda · {m.plate ?? ""} · {m.customer_name}
+                </a>
+              )}
               {showOrder && m.order_id && (
                 <a href={`/os/${m.order_id}/mensagens`} className="font-semibold underline">
                   OS {String(m.order_number).padStart(4, "0")} · {m.plate} · {m.customer_name}
@@ -70,6 +85,11 @@ export function MessageList({ messages, canAct, showOrder }: { messages: Msg[]; 
               </p>
             )}
             {m.last_error && <p className="mt-1 text-xs text-brand">Erro: {m.last_error}</p>}
+            {canAct && scheduled && (
+              <div className="mt-3">
+                <Action action={cancelMessageAction} id={m.id} label="Não enviar" variant="ghost" />
+              </div>
+            )}
             {canAct && pendingManual && (
               <div className="mt-3 flex flex-wrap gap-2">
                 <a

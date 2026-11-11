@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { processNotifications } from "@/lib/push";
 import { processOutbox } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
@@ -13,9 +14,10 @@ function authorized(req: Request) {
   return timingSafeEqual(Buffer.from(got), Buffer.from(secret));
 }
 
-/** Endpoint para agendador externo (cron) processar a fila de WhatsApp. */
+/** Endpoint para agendador externo (cron): fila de WhatsApp/lembretes e avisos no celular. */
 export async function POST(req: Request) {
   if (!authorized(req)) return new NextResponse("não autorizado", { status: 401 });
-  const r = await processOutbox(50);
-  return NextResponse.json(r);
+  const whatsapp = await processOutbox(50);
+  const push = await processNotifications();
+  return NextResponse.json({ whatsapp, push });
 }

@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth/session";
 import { asUser } from "@/lib/db";
 import { env } from "@/lib/env";
 import { ADMIN } from "@/lib/roles";
+import { pushConfig } from "@/lib/push";
 import { Alert, Card, DefinitionList, PageHeader, SectionTitle } from "@/components/ui";
 import { CompanyForm, ProviderForm } from "../forms";
 
@@ -38,6 +39,16 @@ export default async function CompanyPage() {
           </Alert>
         )}
         <ProviderForm current={provider} configured={wa.configured} />
+      </Card>
+
+      <SectionTitle>Avisos no celular da equipe</SectionTitle>
+      <Card>
+        <DefinitionList
+          items={[
+            ["Situação", pushConfig().configured ? "Configurado — cada pessoa ativa no próprio celular em Perfil" : "Defina VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY no servidor (npm run push:keys)"],
+            ["O que é avisado", "Carro novo para o mecânico, serviço aprovado, diagnóstico concluído, aguardando peça, serviço concluído e alertas de carro parado"],
+          ]}
+        />
       </Card>
     </div>
   );

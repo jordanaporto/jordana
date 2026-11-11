@@ -66,10 +66,17 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         />
       </Card>
 
-      {can.staff(user.role) && !orders.some((o) => !["entregue", "cancelada"].includes(o.status)) && (
-        <LinkButton href={`/os/nova?veiculo=${v.id}`} size="lg" className="mt-4 w-full">
-          Abrir nova OS para este veículo
-        </LinkButton>
+      {can.staff(user.role) && (
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {!orders.some((o) => !["entregue", "cancelada"].includes(o.status)) && (
+            <LinkButton href={`/os/nova?veiculo=${v.id}`} size="lg">
+              Abrir nova OS
+            </LinkButton>
+          )}
+          <LinkButton href={`/agenda/novo?veiculo=${v.id}`} size="lg" variant="outline">
+            Agendar horário
+          </LinkButton>
+        </div>
       )}
 
       <SectionTitle>Histórico de atendimentos ({orders.length})</SectionTitle>

@@ -66,22 +66,28 @@ export function ItemForm({ categoryId, item, categories }: { categoryId: string;
   );
 }
 
-const VARS = ["nome", "nome_completo", "modelo", "marca", "placa", "numero_os", "oficina"];
+const VARS_OS = ["nome", "nome_completo", "modelo", "marca", "placa", "numero_os", "oficina"];
+const VARS_AGENDA = ["nome", "nome_completo", "modelo", "marca", "placa", "servico", "data", "hora", "dia_semana", "oficina", "endereco"];
+const EVENT_LABEL: Record<string, string> = {
+  agendamento_confirmacao: "Ao agendar (confirmação)",
+  agendamento_lembrete_1d: "1 dia antes do horário",
+  agendamento_lembrete_2h: "2 horas antes do horário",
+};
+const SAMPLE: Record<string, string> = {
+  nome: "Maria", nome_completo: "Maria Souza", modelo: "Onix", marca: "Chevrolet", placa: "QZX1A23", numero_os: "0142",
+  oficina: "Injecar Auto Center", servico: "Revisão", data: "20/11", hora: "08:00", dia_semana: "quinta-feira",
+  endereco: "Rua Artur Cavalcante, 488 – Saudade I, Castanhal – PA",
+};
 
 export function TemplateForm({
   t,
 }: {
-  t?: { id: string; name: string; trigger_status: string | null; body: string; meta_template_name: string | null; meta_variables: string[]; active: boolean };
+  t?: { id: string; name: string; trigger_status: string | null; trigger_event?: string | null; body: string; meta_template_name: string | null; meta_variables: string[]; active: boolean };
 }) {
   const [body, setBody] = useState(t?.body ?? "");
-  const preview = VARS.reduce(
-    (acc, v) =>
-      acc.replaceAll(
-        `{${v}}`,
-        ({ nome: "Maria", nome_completo: "Maria Souza", modelo: "Onix", marca: "Chevrolet", placa: "QZX1A23", numero_os: "0142", oficina: "Injecar Auto Center" } as Record<string, string>)[v],
-      ),
-    body,
-  );
+  const [trigger, setTrigger] = useState(t?.trigger_event ? `evento:${t.trigger_event}` : t?.trigger_status ? `status:${t.trigger_status}` : "");
+  const VARS = trigger.startsWith("evento:") ? VARS_AGENDA : VARS_OS;
+  const preview = Object.entries(SAMPLE).reduce((acc, [k, v]) => acc.replaceAll(`{${k}}`, v), body);
   return (
     <ActionForm action={saveTemplateAction} resetOnSuccess={!t}>
       {t && <input type="hidden" name="template_id" value={t.id} />}
@@ -89,15 +95,29 @@ export function TemplateForm({
         <Field label="Nome" name="name">
           <Input name="name" defaultValue={t?.name} />
         </Field>
-        <Field label="Enviar automaticamente quando a OS entrar em" name="trigger_status">
-          <Select name="trigger_status" defaultValue={t?.trigger_status ?? ""}>
-            <option value="">Nenhuma (uso manual)</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_META[s].label}
-              </option>
-            ))}
-          </Select>
+        <Field label="Quando enviar" name="trigger">
+          <select
+            name="trigger"
+            value={trigger}
+            onChange={(e) => setTrigger(e.target.value)}
+            className="block w-full rounded-xl border-2 border-zinc-300 bg-white px-3 py-3 text-base outline-none focus:border-ink"
+          >
+            <option value="">Uso manual (sem envio automático)</option>
+            <optgroup label="Quando a OS entrar na etapa">
+              {STATUSES.map((s) => (
+                <option key={s} value={`status:${s}`}>
+                  {STATUS_META[s].label}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Agenda">
+              {Object.entries(EVENT_LABEL).map(([k, l]) => (
+                <option key={k} value={`evento:${k}`}>
+                  {l}
+                </option>
+              ))}
+            </optgroup>
+          </select>
         </Field>
       </div>
       <Field label="Texto" name="body" hint={`Variáveis: ${VARS.map((v) => `{${v}}`).join(" ")}`}>

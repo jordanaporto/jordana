@@ -1,6 +1,6 @@
 # 7. Plano de implementação por etapas
 
-> **Situação:** etapas 0 a 13 implementadas e testadas (43 testes de unidade/banco + 10 cenários de ponta a ponta). Falta apenas a parte que depende da oficina: publicar no servidor, cadastrar a equipe real e fazer o piloto.
+> **Situação:** etapas 0 a 13 implementadas e testadas (57 testes de unidade/banco + 13 cenários de ponta a ponta). Falta apenas a parte que depende da oficina: publicar no servidor, cadastrar a equipe real e fazer o piloto.
 
 Cada etapa termina com: **código + migração + testes passando + revisão**, e só então a próxima começa.
 Nenhuma tela é entregue sem estar ligada ao banco de verdade.

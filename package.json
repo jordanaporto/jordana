@@ -17,7 +17,8 @@
     "db:create-admin": "tsx scripts/create-admin.ts",
     "db:demo": "tsx scripts/demo-data.ts",
     "test": "vitest run",
-    "test:e2e": "playwright test --trace off"
+    "test:e2e": "playwright test --trace off",
+    "push:keys": "web-push generate-vapid-keys"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1166.0",
@@ -29,6 +30,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "server-only": "^0.0.1",
+    "web-push": "^3.6.7",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -38,6 +40,7 @@
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.29",
     "postcss": "^8.5.32",

@@ -136,3 +136,24 @@ export function maskCpf(d: string | null | undefined): string {
   if (!d) return "—";
   return `***.***.${d.slice(6, 9)}-${d.slice(9)}`;
 }
+
+/** "2026-11-13" no fuso de Belém */
+export function belemDay(d: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+}
+export function addDays(day: string, n: number): string {
+  const d = new Date(`${day}T12:00:00-03:00`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return belemDay(d);
+}
+const weekdayFmt = new Intl.DateTimeFormat("pt-BR", { timeZone: TZ, weekday: "long" });
+const shortWeekdayFmt = new Intl.DateTimeFormat("pt-BR", { timeZone: TZ, weekday: "short" });
+export function weekdayName(day: string, short = false): string {
+  const d = new Date(`${day}T12:00:00-03:00`);
+  const s = (short ? shortWeekdayFmt : weekdayFmt).format(d).replace(".", "");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+export function dayMonth(day: string): string {
+  const [, m, dd] = day.split("-");
+  return `${dd}/${m}`;
+}

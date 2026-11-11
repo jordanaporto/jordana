@@ -34,7 +34,7 @@ describe("dados iniciais", () => {
     const [{ cats, items }] = await db.owner`select (select count(*) from checklist_categories)::int cats, (select count(*) from checklist_items)::int items`;
     expect(cats).toBe(7);
     expect(items).toBe(34);
-    const tpl = await db.owner`select trigger_status from message_templates where active order by trigger_status`;
+    const tpl = await db.owner`select trigger_status from message_templates where active and trigger_status is not null order by trigger_status`;
     expect(tpl.map((t) => t.trigger_status)).toEqual(["recebido", "em_diagnostico", "aguardando_aprovacao", "em_manutencao", "pronto_retirada"]);
   });
 });

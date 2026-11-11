@@ -9,10 +9,10 @@ export const metadata = { title: "Mensagens automáticas" };
 
 export default async function TemplatesPage() {
   const user = await requireUser(ADMIN);
-  const templates = await asUser(user.id, (sql) => sql`select * from message_templates order by active desc, trigger_status nulls last, name`);
+  const templates = await asUser(user.id, (sql) => sql`select * from message_templates order by active desc, trigger_event nulls first, trigger_status nulls last, name`);
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Mensagens automáticas" subtitle="Textos enviados ao cliente quando a OS muda de etapa" back="/admin/config" />
+      <PageHeader title="Mensagens automáticas" subtitle="Textos enviados ao cliente nas etapas da OS e na agenda (confirmação e lembretes)" back="/admin/config" />
       <Alert kind="info">
         Para envio automático pela API oficial, cada texto precisa estar cadastrado e aprovado como “modelo” (template) no WhatsApp
         Manager da Meta, com o mesmo conteúdo. Informe aqui o nome do modelo e a ordem das variáveis.
@@ -23,6 +23,8 @@ export default async function TemplatesPage() {
             {t.name}{" "}
             {t.trigger_status ? (
               <Badge className="ml-2 bg-ink text-white">ao entrar em: {STATUS_META[t.trigger_status as OsStatus].label}</Badge>
+            ) : t.trigger_event ? (
+              <Badge className="ml-2 bg-blue-700 text-white">agenda</Badge>
             ) : (
               <Badge className="ml-2 bg-zinc-200">manual</Badge>
             )}
@@ -34,6 +36,7 @@ export default async function TemplatesPage() {
                 id: t.id,
                 name: t.name,
                 trigger_status: t.trigger_status,
+                trigger_event: t.trigger_event,
                 body: t.body,
                 meta_template_name: t.meta_template_name,
                 meta_variables: t.meta_variables ?? [],

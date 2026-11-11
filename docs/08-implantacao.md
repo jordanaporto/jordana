@@ -18,6 +18,10 @@ Duas formas. A **opção A** é a mais simples e barata para uma oficina.
    nano .env      # preencha DOMAIN, APP_URL, POSTGRES_PASSWORD, APP_DB_PASSWORD, CRON_SECRET
    ```
    Para gerar senhas fortes: `openssl rand -base64 24`.
+   Para os **avisos no celular**, gere as chaves uma vez e cole `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` no `.env`:
+   ```bash
+   docker run --rm node:22-alpine npx -y web-push generate-vapid-keys
+   ```
 4. Suba tudo:
    ```bash
    docker compose up -d --build
@@ -75,4 +79,5 @@ npm run build && npm run test:e2e   # ponta a ponta no celular emulado (banco in
 - [ ] Logins individuais para cada mecânico e atendente
 - [ ] Dados da empresa preenchidos (Administração → Empresa) — aparecem no PDF
 - [ ] Backup testado (restaurar um `.dump` num banco de teste)
+- [ ] Chaves dos avisos (VAPID) no `.env` e avisos ativados no celular de cada pessoa (Perfil)
 - [ ] Piloto de 1 semana com 1–2 mecânicos

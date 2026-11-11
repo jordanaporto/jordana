@@ -78,6 +78,27 @@ async function main() {
         update service_order_checklist set result = 'ok'
          where service_order_id = ${orderId} and category_name in ('Pneus', 'Iluminação')`);
     }
+    // agenda: alguns horários nos próximos dias (confirmação e lembretes vão para a fila)
+    const [{ n: hasAppt }] = await sql`select count(*)::int as n from appointments`;
+    if (!hasAppt) {
+      const AGENDA = [
+        { name: "Patrícia Rocha", phone: "91984443322", plate: "RTA5E67", brand: "Volkswagen", model: "Polo", year: 2022, days: 1, time: "08:00", service: "Revisão de 40 mil km" },
+        { name: "Marcos Vieira", phone: "91983332211", plate: "SBC8F90", brand: "Jeep", model: "Renegade", year: 2020, days: 1, time: "10:30", service: "Alinhamento e balanceamento" },
+        { name: "Lúcia Ferreira", phone: "91982221100", plate: "PQR1G23", brand: "Renault", model: "Kwid", year: 2021, days: 2, time: "14:00", service: "Ar-condicionado" },
+        { name: "André Costa", phone: "91981110099", plate: "OKL4H56", brand: "Honda", model: "Civic", year: 2017, days: 4, time: "09:00", service: "Troca de óleo e filtros" },
+      ];
+      for (const a of AGENDA) {
+        const day = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Belem" }).format(new Date(Date.now() + a.days * 86400_000));
+        const at = new Date(`${day}T${a.time}:00-03:00`);
+        await as("ana", async (tx) => {
+          const [c] = await tx`insert into customers (name, phone, whatsapp, whatsapp_opt_in)
+                               values (${a.name}, ${"+55" + a.phone}, ${"+55" + a.phone}, true) returning id`;
+          const [v] = await tx`insert into vehicles (customer_id, plate, brand, model, year)
+                               values (${c.id}, ${a.plate}, ${a.brand}, ${a.model}, ${a.year}) returning id`;
+          await tx`select app.create_appointment(${c.id}, ${v.id}, ${at}, 60, ${a.service}, null)`;
+        });
+      }
+    }
     console.log("✓ dados de demonstração criados. Usuários: ana, joao, carlos, dono — senha Injecar2026");
 
     async function tx_prices(orderId: string) {

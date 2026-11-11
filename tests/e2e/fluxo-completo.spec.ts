@@ -230,7 +230,9 @@ test.describe.serial("fluxo completo da OS", () => {
       await expect(page.getByText(s, { exact: true })).toBeVisible();
     }
     await expect(page.getByText("Cliente recusou").first()).toBeVisible();
-    await page.goto("/admin/auditoria?os=1");
+    await page.goto(orderUrl);
+    const num = Number((await page.getByText(/^OS \d{4}$/).first().textContent())!.replace(/\D/g, ""));
+    await page.goto(`/admin/auditoria?os=${num}`);
     await expect(page.getByRole("cell", { name: /João Mecânico/ }).first()).toBeVisible();
     await page.goto("/gestao");
     await expect(page.getByText("R$ 300,00").first()).toBeVisible(); // faturamento executado (180 + 120)

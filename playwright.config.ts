@@ -11,6 +11,8 @@ export const E2E_ENV = {
   ENABLE_BACKGROUND_WORKER: "false",
   WHATSAPP_APP_SECRET: "e2e-app-secret",
   WHATSAPP_VERIFY_TOKEN: "e2e-verify-token",
+  VAPID_PUBLIC_KEY: "BD8wAebYt_4FYocLalvTc5-CsbPiwTt2cIhrNafwt07Tf9i8-A1upqgOpAmpvWh3iJFjZD3bLJ006HopJfDhk_w",
+  VAPID_PRIVATE_KEY: "mcAdamePl69iAkuEWe933oVOIt0AC-C2PVFrZFQTFuE",
 };
 
 export default defineConfig({

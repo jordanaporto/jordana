@@ -37,6 +37,27 @@ Sem sinal? A foto tenta reenviar sozinha até 4 vezes. Se aparecer “Tentar de 
 
 Voltar uma etapa ou cancelar: botão **Mais** → escolha → informe o motivo.
 
+### Agenda (atendimento)
+
+1. Menu **Agenda** → **+ Agendar** → busque pela placa, telefone ou nome (ou **+ Cliente novo**).
+2. Escolha data, horário, duração e serviço → **Agendar e avisar o cliente**.
+3. O cliente recebe pelo WhatsApp: **confirmação na hora**, **lembrete 1 dia antes** e **lembrete 2 horas antes** (só quem autorizou WhatsApp).
+4. No dia: **Cliente confirmou**, **Reagendar** (nova confirmação e lembretes refeitos), **Mais → Cliente faltou / Cancelar horário**.
+5. Quando o cliente chega: **Chegou → abrir OS** — informe a km e o mecânico; a OS já nasce com cliente, veículo e serviço.
+
+Em **Mensagens**: *Enviar agora* (o que já chegou a hora), *Programadas* (lembretes futuros, com dia e hora) e *Todas*.
+
+## Avisos no celular (todos os perfis)
+
+Em **Perfil → Avisos no celular → Ativar avisos neste aparelho** (no iPhone, instale o app na tela inicial antes). Você recebe:
+
+| Quem | Aviso |
+|------|-------|
+| Mecânico | Carro novo atribuído a você · Serviço aprovado pelo cliente · Carro sem atualização / diagnóstico demorando |
+| Atendimento e admin | Diagnóstico concluído · Aguardando peça · Serviço concluído · Alertas (carro parado, orçamento sem resposta, pronto sem aviso ao cliente, peça demorando) |
+
+Tocar no aviso abre a OS direto na aba certa. Quem fez a ação não recebe aviso dela.
+
 ## Administrador
 
 - **Dashboard**: carros na oficina, por etapa, por mecânico, tempo na etapa atual, alertas, finalizados, últimas alterações.

@@ -6,13 +6,15 @@ import { Logo } from "@/components/logo";
 import { BottomNav, SideNav } from "@/components/shell";
 import { logoutAction } from "@/app/login/actions";
 import { PwaRegister } from "@/components/pwa-register";
+import { PushNudge } from "@/components/push-nudge";
+import { pushConfig } from "@/lib/push";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const counts = can.readAll(user.role)
     ? await asUser(user.id, async (sql) => {
         const [r] = await sql`
-          select (select count(*) from outbound_messages where status in ('na_fila', 'falhou') and provider = 'manual')::int as mensagens,
+          select (select count(*) from outbound_messages where status in ('na_fila', 'falhou') and provider = 'manual' and send_after <= now())::int as mensagens,
                  (select count(distinct service_order_id) from v_alerts)::int as alertas`;
         return { mensagens: r.mensagens as number, alertas: r.alertas as number };
       })
@@ -50,6 +52,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             Por segurança, <Link href="/perfil" className="underline">troque sua senha provisória</Link>.
           </div>
         )}
+
+        {pushConfig().configured && !user.mustChangePassword && <PushNudge />}
 
         <main className="mx-auto max-w-6xl px-4 pb-28 pt-4 lg:px-8 lg:pb-12 lg:pt-8">{children}</main>
       </div>

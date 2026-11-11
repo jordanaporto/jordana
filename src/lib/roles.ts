@@ -52,6 +52,7 @@ export function navFor(role: Role): NavItem[] {
     case "atendimento":
       return [
         { href: "/patio", label: "Pátio", icon: "layout", badge: "alertas" },
+        { href: "/agenda", label: "Agenda", icon: "calendar" },
         { href: "/os/nova", label: "Nova OS", icon: "plus" },
         { href: "/clientes", label: "Clientes", icon: "users" },
         { href: "/mensagens", label: "Mensagens", icon: "message", badge: "mensagens" },
@@ -61,6 +62,7 @@ export function navFor(role: Role): NavItem[] {
       return [
         { href: "/admin", label: "Dashboard", icon: "chart", badge: "alertas" },
         { href: "/patio", label: "Pátio", icon: "layout" },
+        { href: "/agenda", label: "Agenda", icon: "calendar" },
         { href: "/os/nova", label: "Nova OS", icon: "plus" },
         { href: "/clientes", label: "Clientes", icon: "users" },
         { href: "/mensagens", label: "Mensagens", icon: "message", badge: "mensagens" },
@@ -82,7 +84,11 @@ export function navFor(role: Role): NavItem[] {
 export function mobileNavFor(role: Role): NavItem[] {
   const all = navFor(role);
   if (role === "admin") {
-    return all.filter((i) => ["/admin", "/patio", "/os/nova", "/mensagens", "/admin/config"].includes(i.href));
+    return all.filter((i) => ["/admin", "/agenda", "/os/nova", "/mensagens", "/admin/config"].includes(i.href));
+  }
+  if (role === "atendimento") {
+    // Perfil fica no cabeçalho (toque no nome)
+    return all.filter((i) => ["/patio", "/agenda", "/os/nova", "/clientes", "/mensagens"].includes(i.href));
   }
   return all.slice(0, 5);
 }

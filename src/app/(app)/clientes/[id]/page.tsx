@@ -65,7 +65,14 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         </details>
       )}
 
-      <SectionTitle action={staff && !c.anonymized_at ? <LinkButton href={`/veiculos/novo?cliente=${c.id}`} size="sm" variant="outline">+ Veículo</LinkButton> : undefined}>
+      {staff && !c.anonymized_at && (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <LinkButton href={`/agenda/novo?cliente=${c.id}`} variant="outline">Agendar horário</LinkButton>
+          <LinkButton href={`/veiculos/novo?cliente=${c.id}`} variant="outline">+ Veículo</LinkButton>
+        </div>
+      )}
+
+      <SectionTitle>
         Veículos
       </SectionTitle>
       <div className="grid gap-2 sm:grid-cols-2">

@@ -24,6 +24,23 @@ Configure em **Administração → Mensagens do WhatsApp**. Já vêm prontas:
 
 Variáveis: `{nome}` (primeiro nome), `{nome_completo}`, `{modelo}`, `{marca}`, `{placa}`, `{numero_os}`, `{oficina}`.
 
+## Agenda: confirmação e lembretes
+
+| Quando | Texto padrão |
+|--------|--------------|
+| Ao agendar (ou reagendar) | “Olá, {nome}! Seu horário na Injecar está marcado para {dia_semana}, {data} às {hora}: {servico} no seu {modelo}. Endereço: {endereco}…” |
+| 1 dia antes | “Olá, {nome}! Passando para lembrar do seu horário amanhã, {data} às {hora}, para {servico} no seu {modelo}…” |
+| 2 horas antes | “{nome}, seu horário na Injecar é hoje às {hora}. Estamos te esperando! Endereço: {endereco}.” |
+
+Variáveis extras da agenda: `{servico}`, `{data}`, `{hora}`, `{dia_semana}`, `{endereco}`.
+Reagendar cancela os lembretes antigos e cria novos; cancelar, marcar falta ou abrir a OS cancela os pendentes.
+Se o horário for em menos de 24 h, o lembrete da véspera é pulado (a confirmação já cobre).
+
+- **Com a Cloud API**: os lembretes saem sozinhos no horário certo (o servidor confere a fila a cada minuto).
+- **No modo manual**: o lembrete aparece em **Mensagens → Enviar agora** quando chega a hora, para o atendente enviar com um toque.
+
+Para a API, cadastre também na Meta os 3 modelos da agenda (categoria **Utilidade**) e informe o nome e a ordem das variáveis em Administração → Mensagens.
+
 **Só recebe mensagem quem autorizou** (campo “Cliente aceita receber atualizações pelo WhatsApp”, com data e responsável registrados).
 
 ## Ativando a Cloud API (passo a passo)

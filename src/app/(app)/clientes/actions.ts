@@ -17,7 +17,7 @@ export async function createCustomerAction(_prev: ActionState, fd: FormData): Pr
       insert into customers (name, phone, whatsapp, cpf, notes, whatsapp_opt_in)
       values (${d.name}, ${d.phone}, ${d.whatsapp ?? d.phone}, ${d.cpf}, ${d.notes}, ${d.whatsapp_opt_in})
       returning id`);
-    redirect(next === "os" ? `/veiculos/novo?cliente=${c.id}&next=os` : `/clientes/${c.id}`);
+    redirect(next === "os" || next === "agenda" ? `/veiculos/novo?cliente=${c.id}&next=${next}` : `/clientes/${c.id}`);
   });
 }
 
@@ -44,7 +44,7 @@ export async function createVehicleAction(_prev: ActionState, fd: FormData): Pro
       values (${d.customer_id}, ${d.plate}, ${d.brand}, ${d.model}, ${d.version}, ${d.year}, ${d.engine}, ${d.fuel},
               ${d.current_km}, ${d.color}, ${d.notes})
       returning id`);
-    redirect(next === "os" ? `/os/nova?veiculo=${v.id}` : `/veiculos/${v.id}`);
+    redirect(next === "os" ? `/os/nova?veiculo=${v.id}` : next === "agenda" ? `/agenda/novo?veiculo=${v.id}` : `/veiculos/${v.id}`);
   });
 }
 

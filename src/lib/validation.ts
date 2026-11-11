@@ -3,6 +3,8 @@ import { isValidCpf, isValidPlate, normalizeCpf, normalizePhone, normalizePlate,
 import { ROLES } from "./roles";
 import { STATUSES } from "./status";
 
+export const APPOINTMENT_EVENTS = ["agendamento_confirmacao", "agendamento_lembrete_1d", "agendamento_lembrete_2h"] as const;
+
 const optText = (max: number) =>
   z
     .string()
@@ -207,10 +209,17 @@ export const userUpdateSchema = z.object({
 export const templateSchema = z.object({
   template_id: optUuid,
   name: reqText(2, 80, "Informe o nome"),
-  trigger_status: z
-    .enum([...STATUSES, ""])
+  trigger: z
+    .string()
     .optional()
-    .transform((v) => (v ? v : null)),
+    .transform((v, ctx) => {
+      if (!v) return { trigger_status: null, trigger_event: null };
+      const [kind, value] = v.split(":");
+      if (kind === "status" && (STATUSES as readonly string[]).includes(value)) return { trigger_status: value, trigger_event: null };
+      if (kind === "evento" && (APPOINTMENT_EVENTS as readonly string[]).includes(value)) return { trigger_status: null, trigger_event: value };
+      ctx.addIssue({ code: "custom", message: "Escolha quando enviar" });
+      return z.NEVER;
+    }),
   body: reqText(2, 1024, "Escreva a mensagem"),
   meta_template_name: z
     .string()
@@ -258,3 +267,31 @@ export function formToObject(fd: FormData): Record<string, string> {
 export function fieldErrors(err: z.ZodError): FieldErrors {
   return z.flattenError(err).fieldErrors as FieldErrors;
 }
+
+// ------------------------------------------------------------------ agenda
+/** Data/hora digitadas no horário de Belém (UTC−3, sem horário de verão). */
+export function belemDateTime(date: string, time: string): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return null;
+  const d = new Date(`${date}T${time}:00-03:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export const appointmentSchema = z
+  .object({
+    appointment_id: optUuid,
+    customer_id: z.string().optional().transform((v) => v || null).pipe(z.uuid().nullable()),
+    vehicle_id: optUuid,
+    date: z.string({ error: "Escolha a data" }).regex(/^\d{4}-\d{2}-\d{2}$/, "Escolha a data"),
+    time: z.string({ error: "Escolha o horário" }).regex(/^\d{2}:\d{2}$/, "Escolha o horário"),
+    duration: z.string().optional().transform((v) => Number(v || 60)).pipe(z.number().int().min(15).max(600)),
+    service: reqText(2, 200, "Informe o serviço"),
+    notes: optText(2000),
+  })
+  .transform((v, ctx) => {
+    const at = belemDateTime(v.date, v.time);
+    if (!at) {
+      ctx.addIssue({ code: "custom", path: ["time"], message: "Data ou horário inválido" });
+      return z.NEVER;
+    }
+    return { ...v, at };
+  });

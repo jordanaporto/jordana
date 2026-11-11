@@ -56,11 +56,11 @@ export async function saveTemplateAction(_p: ActionState, fd: FormData): Promise
   return runForm(templateSchema, fd, async (d) => {
     await asUser(user.id, (sql) =>
       d.template_id
-        ? sql`update message_templates set name = ${d.name}, trigger_status = ${d.trigger_status}, body = ${d.body},
+        ? sql`update message_templates set name = ${d.name}, trigger_status = ${d.trigger.trigger_status}, trigger_event = ${d.trigger.trigger_event}, body = ${d.body},
                      meta_template_name = ${d.meta_template_name}, meta_variables = ${d.meta_variables}, active = ${d.active}
                where id = ${d.template_id}`
-        : sql`insert into message_templates (name, trigger_status, body, meta_template_name, meta_variables, active)
-              values (${d.name}, ${d.trigger_status}, ${d.body}, ${d.meta_template_name}, ${d.meta_variables}, ${d.active})`,
+        : sql`insert into message_templates (name, trigger_status, trigger_event, body, meta_template_name, meta_variables, active)
+              values (${d.name}, ${d.trigger.trigger_status}, ${d.trigger.trigger_event}, ${d.body}, ${d.meta_template_name}, ${d.meta_variables}, ${d.active})`,
     );
     revalidatePath("/admin/mensagens");
     return { ok: true, message: "Modelo salvo" };

@@ -19,7 +19,7 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-2xl">
       <PageHeader
         title="Novo veículo"
-        subtitle={`${c.name}${isOs ? " — passo 3 de 4" : ""}`}
+        subtitle={c.name}
         back={`/clientes/${c.id}`}
       />
       <Card>
@@ -27,7 +27,7 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: P
           action={createVehicleAction}
           values={{ customer_id: c.id, plate: sp.placa }}
           next={sp.next}
-          submitLabel={isOs ? "Salvar e abrir OS →" : "Salvar veículo"}
+          submitLabel={isOs ? "Salvar e abrir OS →" : sp.next === "agenda" ? "Salvar e agendar →" : "Salvar veículo"}
         />
       </Card>
     </div>

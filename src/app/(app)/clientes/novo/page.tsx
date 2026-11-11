@@ -9,13 +9,13 @@ export const metadata = { title: "Novo cliente" };
 export default async function NewCustomerPage({ searchParams }: { searchParams: Promise<{ next?: string; nome?: string; tel?: string }> }) {
   await requireUser(STAFF);
   const sp = await searchParams;
-  const isOs = sp.next === "os";
+  const isOs = sp.next === "os" || sp.next === "agenda";
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader
         title="Novo cliente"
-        subtitle={isOs ? "Passo 2 de 4 — depois cadastramos o veículo" : undefined}
-        back={isOs ? "/os/nova" : "/clientes"}
+        subtitle={isOs ? "Depois cadastramos o veículo" : undefined}
+        back={sp.next === "os" ? "/os/nova" : sp.next === "agenda" ? "/agenda/novo" : "/clientes"}
       />
       <Card>
         <CustomerForm

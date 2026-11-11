@@ -26,6 +26,8 @@ Feito para o **celular** (mecânicos e atendimento) e com painel para **computad
 | Auditoria | Toda alteração (antes → depois), usuário, perfil, data/hora, filtrável por OS/usuário/período |
 | Gestão | Carros atendidos, tempo médio de diagnóstico e aprovação, produtividade por mecânico, aprovados × recusados, faturamento por OS, ticket médio |
 | LGPD | Exportar dados do cliente, anonimizar (inclusive na auditoria), coleta mínima |
+| Agenda | Agendamento com confirmação no WhatsApp na hora, lembrete 1 dia antes e 2 horas antes; reagendar, falta, cancelamento e “chegou → abrir OS” |
+| Avisos no celular | Notificações para a equipe: carro atribuído, serviço aprovado, diagnóstico/serviço concluído, aguardando peça, alertas |
 | PWA | Instala na tela inicial do celular |
 
 ## Documentação
@@ -57,8 +59,8 @@ npm run dev                         # http://localhost:3000
 ## Testes
 
 ```bash
-npm test                            # 43 testes: unidade + regras/permissões no PostgreSQL
-npm run build && npm run test:e2e   # 10 cenários ponta a ponta no celular emulado
+npm test                            # 57 testes: unidade + regras/permissões no PostgreSQL
+npm run build && npm run test:e2e   # 13 cenários ponta a ponta no celular emulado
 ```
 
 ## Stack

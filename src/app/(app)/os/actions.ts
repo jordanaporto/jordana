@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { processNotifications } from "@/lib/push";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { friendlyError, runForm, type ActionState } from "@/lib/actions";
@@ -20,6 +22,8 @@ import {
 } from "@/lib/validation";
 
 const refresh = (orderId: string) => revalidatePath(`/os/${orderId}`, "layout");
+/** Envia os avisos no celular logo após a resposta (sem esperar o ciclo do servidor). */
+const pushSoon = () => after(() => processNotifications().catch((e) => console.error("[push]", e.message)));
 
 // ------------------------------------------------------------------ abertura
 export async function openOrderAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
@@ -28,6 +32,7 @@ export async function openOrderAction(_prev: ActionState, fd: FormData): Promise
     const [r] = await asUser(user.id, (sql) => sql`
       select app.open_service_order(${d.customer_id}, ${d.vehicle_id}, ${d.entry_km}, ${d.mechanic_id},
                                     ${d.complaint}, ${d.intake_notes}) as id`);
+    pushSoon();
     redirect(`/os/${r.id}`);
   });
 }
@@ -52,6 +57,7 @@ export async function assignMechanicAction(_prev: ActionState, fd: FormData): Pr
   const user = await requireUser(STAFF);
   return runForm(assignSchema, fd, async (d) => {
     await asUser(user.id, (sql) => sql`select app.assign_mechanic(${d.order_id}, ${d.mechanic_id})`);
+    pushSoon();
     refresh(d.order_id);
     return { ok: true, message: "Mecânico atualizado" };
   });
@@ -62,6 +68,7 @@ export async function changeStatusAction(_prev: ActionState, fd: FormData): Prom
   const user = await requireUser();
   return runForm(statusChangeSchema, fd, async (d) => {
     await asUser(user.id, (sql) => sql`select app.change_status(${d.order_id}, ${d.to_status}::os_status, ${d.note})`);
+    pushSoon();
     refresh(d.order_id);
     revalidatePath("/patio");
     revalidatePath("/meus-carros");

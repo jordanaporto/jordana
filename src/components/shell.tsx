@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarDays,
   Car,
   ChartColumn,
   LayoutGrid,
@@ -29,6 +30,7 @@ const ICONS: Record<string, LucideIcon> = {
   chart: ChartColumn,
   trending: TrendingUp,
   settings: Settings,
+  calendar: CalendarDays,
 };
 
 function isActive(pathname: string, href: string) {
