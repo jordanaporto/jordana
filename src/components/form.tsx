@@ -154,7 +154,7 @@ export function Checkbox({ label, name, defaultChecked, hint }: { label: ReactNo
         name={name}
         defaultChecked={checked}
         key={`${name}-${String(checked)}`}
-        className="mt-0.5 size-6 shrink-0 accent-[#c80000]"
+        className="mt-0.5 size-6 shrink-0 accent-[var(--color-brand)]"
       />
       <span>
         <span className="font-semibold">{label}</span>

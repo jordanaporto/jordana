@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const obj = await storage().get(r.storage_path);
   if (!obj) return new NextResponse("arquivo ausente", { status: 404 });
-  const name = `Injecar-OS${String(r.number).padStart(4, "0")}-${r.plate}-v${r.version}.pdf`;
+  const name = `OS${String(r.number).padStart(4, "0")}-${r.plate}-v${r.version}.pdf`;
   return new NextResponse(obj.body, {
     headers: {
       "Content-Type": "application/pdf",

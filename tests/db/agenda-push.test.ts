@@ -34,7 +34,7 @@ describe("agenda", () => {
     expect(m.map((x) => x.trigger_event)).toEqual(["agendamento_confirmacao", "agendamento_lembrete_1d", "agendamento_lembrete_2h"]);
     expect(Math.abs(new Date(m[1].send_after).getTime() - (at.getTime() - 86400_000))).toBeLessThan(1000);
     expect(Math.abs(new Date(m[2].send_after).getTime() - (at.getTime() - 2 * 3600_000))).toBeLessThan(1000);
-    expect(m[0].rendered_body).toMatch(/^Olá, Maria! Seu horário na Injecar está marcado para .+, \d\d\/\d\d às \d\d:\d\d: Revisão no seu Onix/);
+    expect(m[0].rendered_body).toMatch(/^Olá, Maria! Seu horário na .+ está marcado para .+, \d\d\/\d\d às \d\d:\d\d: Revisão no seu Onix/);
   });
 
   it("agendamento para daqui a 5 horas não programa o lembrete da véspera", async () => {

@@ -1,10 +1,10 @@
-// Service worker do Injecar OS: permite instalar como app e mostra aviso quando sem internet.
+// Service worker do Sistema de Serviço para Oficina: permite instalar como app e mostra aviso quando sem internet.
 // Não guarda dados de clientes em cache (somente a página offline e arquivos estáticos).
-const CACHE = "injecar-static-v2";
+const CACHE = "oficina-static-v3";
 const OFFLINE = "/offline.html";
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll([OFFLINE, "/icons/icon.svg", "/icons/icon-192.png"])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll([OFFLINE])));
   self.skipWaiting();
 });
 
@@ -22,7 +22,7 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(fetch(req).catch(() => caches.match(OFFLINE)));
     return;
   }
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/brand/")) {
     e.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         const copy = res.clone();
@@ -41,13 +41,13 @@ self.addEventListener("push", (e) => {
   try {
     data = e.data ? e.data.json() : {};
   } catch {
-    data = { title: "Injecar OS", body: e.data ? e.data.text() : "" };
+    data = { title: "Aviso", body: e.data ? e.data.text() : "" };
   }
   e.waitUntil(
-    self.registration.showNotification(data.title || "Injecar OS", {
+    self.registration.showNotification(data.title || "Aviso", {
       body: data.body || "",
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-192.png",
+      icon: data.icon || "/brand/padrao/icon-192.png",
+      badge: data.icon || "/brand/padrao/icon-192.png",
       tag: data.tag,
       data: { url: data.url || "/" },
       vibrate: [120, 60, 120],

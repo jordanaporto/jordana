@@ -1,5 +1,5 @@
 -- =====================================================================
--- Injecar Auto Center — esquema principal
+-- Sistema de Serviço para Oficina — esquema principal
 -- =====================================================================
 -- Convenções:
 --   * dinheiro em centavos (bigint)

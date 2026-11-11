@@ -44,10 +44,10 @@ test.describe.serial("agenda", () => {
     await expect(page.getByText(/Lembrete 2 h: \d\d\/\d\d 07:30/)).toBeVisible();
 
     await page.goto("/mensagens");
-    await expect(page.getByText(/Olá, Roberto! Seu horário na Injecar está marcado para .+ às 09:30: Revisão de 60 mil km no seu Strada/)).toBeVisible();
+    await expect(page.getByText(/Olá, Roberto! Seu horário na .+ está marcado para .+ às 09:30: Revisão de 60 mil km no seu Strada/)).toBeVisible();
     await page.goto("/mensagens?aba=programadas");
     await expect(page.getByText(/Passando para lembrar do seu horário amanhã, .+ às 09:30/)).toBeVisible();
-    await expect(page.getByText(/seu horário na Injecar é hoje às 09:30/)).toBeVisible();
+    await expect(page.getByText(/seu horário na .+ é hoje às 09:30/)).toBeVisible();
     await page.context().close();
   });
 
@@ -80,7 +80,7 @@ test.describe.serial("agenda", () => {
     await expect(page.getByText("Chegou · OS aberta")).toBeVisible();
     // lembretes pendentes cancelados após a chegada
     await page.goto("/mensagens?aba=programadas");
-    await expect(page.getByText(/seu horário na Injecar é hoje às 14:00/)).toHaveCount(0);
+    await expect(page.getByText(/seu horário na .+ é hoje às 14:00/)).toHaveCount(0);
     await page.context().close();
   });
 

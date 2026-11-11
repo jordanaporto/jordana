@@ -3,7 +3,9 @@ import { date, dateTime, formatCpf, formatPhone, formatPlate, km, money, osNumbe
 import { APPROVAL_METHOD, CHECKLIST_RESULT, EXECUTION, FUEL, PRIORITY, STATUS_META, type ChecklistResult, type OsStatus, type Priority } from "../status";
 import type { ReportData } from "./data";
 
-const RED = "#c80000";
+import { brand } from "../brand";
+
+const RED = brand.primary;
 const INK = "#0d0d0d";
 const GRAY = "#6b6b6b";
 const LINE = "#e4e4e7";
@@ -60,7 +62,7 @@ export function ReportDocument({
   const evaluated = checklist.filter((c) => c.result !== "nao_avaliado");
 
   return (
-    <Document title={`Relatório ${osNumber(order.number)} - ${formatPlate(order.plate)}`} author={company.name || "Injecar Auto Center"}>
+    <Document title={`Relatório ${osNumber(order.number)} - ${formatPlate(order.plate)}`} author={company.name || brand.name}>
       <Page size="A4" style={s.page}>
         <View style={s.header} fixed>
           <View>
@@ -68,7 +70,7 @@ export function ReportDocument({
               // eslint-disable-next-line jsx-a11y/alt-text -- Image do PDF não tem alt
               <Image src={{ data: logo, format: "png" }} style={{ width: 130, height: 48, objectFit: "contain", marginBottom: 3 }} />
             ) : (
-              <Text style={s.brand}>{(company.name || "Injecar Auto Center").toUpperCase()}</Text>
+              <Text style={s.brand}>{(company.name || brand.name).toUpperCase()}</Text>
             )}
             <Text style={s.brandSub}>RELATÓRIO DE ATENDIMENTO</Text>
             <Text style={[s.muted, { fontSize: 7.5, marginTop: 2 }]}>

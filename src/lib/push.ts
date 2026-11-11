@@ -1,5 +1,6 @@
 import "server-only";
 import webpush from "web-push";
+import { brand } from "./brand";
 import { asSystem } from "./db";
 
 /**
@@ -9,7 +10,7 @@ import { asSystem } from "./db";
 export function pushConfig() {
   const publicKey = process.env.VAPID_PUBLIC_KEY ?? "";
   const privateKey = process.env.VAPID_PRIVATE_KEY ?? "";
-  const subject = process.env.VAPID_SUBJECT || "mailto:contato@injecar.com.br";
+  const subject = process.env.VAPID_SUBJECT || "mailto:suporte@example.com";
   return { publicKey, privateKey, subject, configured: Boolean(publicKey && privateKey) };
 }
 
@@ -46,7 +47,7 @@ export async function processNotifications(send: Sender = webpush.sendNotificati
       try {
         await send(
           { endpoint: r.endpoint, keys: { p256dh: r.p256dh, auth: r.auth } },
-          JSON.stringify({ title: r.title, body: r.body ?? "", url: r.url ?? "/", tag: `n${r.notification_id}` }),
+          JSON.stringify({ title: r.title, body: r.body ?? "", url: r.url ?? "/", tag: `n${r.notification_id}`, icon: brand.icon192 }),
           { vapidDetails: { subject: cfg.subject, publicKey: cfg.publicKey, privateKey: cfg.privateKey }, TTL: 6 * 3600, urgency: "high" },
         );
         ok = true;

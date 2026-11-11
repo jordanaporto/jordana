@@ -59,6 +59,12 @@ export async function migrate(opts: { reset?: boolean; adminUrl?: string; appUrl
         await tx`insert into public.schema_migrations (name) values (${file})`;
       });
     }
+    // nome da oficina configurado na instalação, enquanto a empresa não tiver sido preenchida
+    const oficina = process.env.NEXT_PUBLIC_OFICINA_NOME;
+    if (oficina) {
+      await sql`update settings set value = value || ${sql.json({ name: oficina })}
+                 where key = 'company' and coalesce(value ->> 'cnpj', '') = '' and value ->> 'name' in ('Minha Oficina', '')`;
+    }
     log("✓ banco atualizado");
   } finally {
     await sql.end();

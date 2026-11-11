@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ActionForm, Checkbox, Field, Input, Select, SubmitButton, Textarea } from "@/components/form";
 import { STATUS_META, STATUSES } from "@/lib/status";
+import { brand } from "@/lib/brand";
 import {
   anonymizeCustomerAction,
   saveAlertSettingsAction,
@@ -75,8 +76,8 @@ const EVENT_LABEL: Record<string, string> = {
 };
 const SAMPLE: Record<string, string> = {
   nome: "Maria", nome_completo: "Maria Souza", modelo: "Onix", marca: "Chevrolet", placa: "QZX1A23", numero_os: "0142",
-  oficina: "Injecar Auto Center", servico: "Revisão", data: "20/11", hora: "08:00", dia_semana: "quinta-feira",
-  endereco: "Rua Artur Cavalcante, 488 – Saudade I, Castanhal – PA",
+  oficina: brand.name, servico: "Revisão", data: "20/11", hora: "08:00", dia_semana: "quinta-feira",
+  endereco: "Rua Exemplo, 100 – Centro",
 };
 
 export function TemplateForm({

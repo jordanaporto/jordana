@@ -1,10 +1,13 @@
-# Injecar OS — Sistema de Ordens de Serviço
+# Sistema de Serviço para Oficina
 
-Sistema interno da **Injecar Auto Center** para acompanhar cada veículo da entrada à entrega:
-ordem de serviço digital, checklist com fotos e vídeos, diagnóstico, orçamento com aprovação por item,
-relatório final em PDF, histórico permanente do veículo e atualizações ao cliente pelo WhatsApp (somente recursos oficiais).
+Sistema de ordens de serviço para oficinas mecânicas: acompanha cada veículo da entrada à entrega,
+com ordem de serviço digital, checklist com fotos e vídeos, diagnóstico, orçamento com aprovação por item,
+agenda com lembretes, relatório final em PDF, histórico permanente do veículo e atualizações ao cliente
+pelo WhatsApp (somente recursos oficiais).
 
 Feito para o **celular** (mecânicos e atendimento) e com painel para **computador** (administração e gestão).
+Cada oficina recebe uma instalação própria com seu nome, logo e cor — veja [docs/12-nova-oficina.md](docs/12-nova-oficina.md).
+Primeira oficina atendida: **Injecar Auto Center** (Castanhal-PA).
 
 ## O que já funciona
 
@@ -45,6 +48,7 @@ Feito para o **celular** (mecânicos e atendimento) e com painel para **computad
 | [9. WhatsApp](docs/09-whatsapp.md) | Modo manual e ativação da Cloud API |
 | [10. Manual de uso](docs/10-manual-de-uso.md) | Passo a passo por perfil |
 | [11. Demonstração online](docs/11-demonstracao.md) | https://injecar-demo.netlify.app (Netlify + Supabase, grátis) |
+| [12. Nova oficina](docs/12-nova-oficina.md) | Como instalar para outra oficina (nome, logo, cor) |
 
 ## Rodar localmente
 
