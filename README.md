@@ -44,6 +44,7 @@ Feito para o **celular** (mecânicos e atendimento) e com painel para **computad
 | [8. Implantação](docs/08-implantacao.md) | Colocar no ar (Docker), backups, desenvolvimento local |
 | [9. WhatsApp](docs/09-whatsapp.md) | Modo manual e ativação da Cloud API |
 | [10. Manual de uso](docs/10-manual-de-uso.md) | Passo a passo por perfil |
+| [11. Demonstração online](docs/11-demonstracao.md) | https://injecar-demo.netlify.app (Netlify + Supabase, grátis) |
 
 ## Rodar localmente
 
