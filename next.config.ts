@@ -23,7 +23,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@react-pdf/renderer", "postgres"],
   // fontes padrão do gerador de PDF são carregadas dinamicamente: incluir no build standalone
   outputFileTracingIncludes: {
-    "/**": ["./node_modules/pdfkit/js/**/*", "./node_modules/@react-pdf/**/*"],
+    "/**": ["./node_modules/pdfkit/js/**/*", "./node_modules/@react-pdf/**/*", "./public/brand/**/*"],
+    "/api/tasks/setup": ["./db/migrations/*.sql"],
   },
   experimental: {
     serverActions: { bodySizeLimit: "2mb" },

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { friendlyError } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth/session";
 import { asUser } from "@/lib/db";
+import { env } from "@/lib/env";
 import { EXT, sniffMime, storage } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -24,7 +25,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!can_edit) return NextResponse.json({ error: "Você não pode adicionar arquivos nesta OS" }, { status: 403 });
 
   const len = Number(req.headers.get("content-length") ?? 0);
-  if (len > MAX_VIDEO + 2 * 1024 * 1024) return NextResponse.json({ error: "Arquivo grande demais (máx. 100 MB)" }, { status: 413 });
+  const limitMb = Math.min(100, env.maxUploadMb);
+  if (len > MAX_VIDEO + 2 * 1024 * 1024 || len > limitMb * 1024 * 1024) {
+    return NextResponse.json(
+      { error: limitMb < 100 ? `Arquivo grande demais nesta demonstração (máx. ${limitMb} MB). Grave um vídeo mais curto.` : "Arquivo grande demais (máx. 100 MB)" },
+      { status: 413 },
+    );
+  }
 
   let form: FormData;
   try {

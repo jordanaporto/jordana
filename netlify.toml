@@ -1,0 +1,8 @@
+# Demonstração no Netlify (o servidor definitivo usa docker-compose.yml)
+[build]
+  command = "npx tsx scripts/netlify-build.ts && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"

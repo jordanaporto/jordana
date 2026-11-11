@@ -1,20 +1,17 @@
 import "server-only";
-
-function req(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`Variável de ambiente ausente: ${name}`);
-  return v;
-}
+import { appDatabaseUrl } from "./db-url";
 
 export const env = {
   get databaseUrl() {
-    return req("DATABASE_URL");
+    const url = appDatabaseUrl();
+    if (!url) throw new Error("Variável de ambiente ausente: DATABASE_URL (ou NETLIFY_DB_URL + APP_DB_PASSWORD)");
+    return url;
   },
   get appUrl() {
-    return process.env.APP_URL ?? "http://localhost:3000";
+    return process.env.APP_URL ?? process.env.URL ?? "http://localhost:3000";
   },
   get storageDriver() {
-    return (process.env.STORAGE_DRIVER ?? "local") as "local" | "s3";
+    return (process.env.STORAGE_DRIVER ?? "local") as "local" | "s3" | "netlify";
   },
   get storageLocalDir() {
     return process.env.STORAGE_LOCAL_DIR ?? "./storage";
@@ -23,7 +20,11 @@ export const env = {
     return process.env.CRON_SECRET ?? "";
   },
   get secureCookies() {
-    return (process.env.APP_URL ?? "").startsWith("https://");
+    return (process.env.APP_URL ?? process.env.URL ?? "").startsWith("https://");
+  },
+  /** Limite de upload por arquivo (MB). No Netlify as funções aceitam ~6 MB por requisição. */
+  get maxUploadMb() {
+    return Number(process.env.MAX_UPLOAD_MB ?? 100);
   },
   whatsapp: {
     get phoneNumberId() {

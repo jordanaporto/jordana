@@ -6,6 +6,7 @@
 import postgres from "postgres";
 import { hashPassword } from "../src/lib/auth/password";
 import { loadEnv } from "./env";
+import { adminDatabaseUrl } from "../src/lib/db-url";
 
 loadEnv();
 
@@ -23,9 +24,9 @@ const CARS = [
   { name: "Fernando Alves", phone: "91985554433", plate: "QAB2D34", brand: "Toyota", model: "Corolla", year: 2018, km: 120500, complaint: "Revisão de 120 mil km", mech: "carlos", to: ["em_inspecao", "em_diagnostico", "diagnostico_concluido", "orcamento_em_preparacao", "aguardando_aprovacao", "servico_aprovado", "em_manutencao", "aguardando_peca"], items: true, approve: true },
 ];
 
-async function main() {
+export async function seedDemo() {
   if (process.env.NODE_ENV === "production") throw new Error("não use dados de demonstração em produção");
-  const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1, onnotice: () => {} });
+  const sql = postgres(adminDatabaseUrl()!, { max: 1, onnotice: () => {} });
   try {
     const hash = await hashPassword("Injecar2026");
     const ids: Record<string, string> = {};
@@ -113,7 +114,9 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error("✗", e.message ?? e);
-  process.exit(1);
-});
+if (process.argv[1]?.endsWith("demo-data.ts")) {
+  seedDemo().catch((e) => {
+    console.error("✗", e.message ?? e);
+    process.exit(1);
+  });
+}

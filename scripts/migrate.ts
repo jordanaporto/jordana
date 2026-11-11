@@ -9,17 +9,19 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import postgres from "postgres";
 import { loadEnv } from "./env";
+import { adminDatabaseUrl, appDatabaseUrl } from "../src/lib/db-url";
 
 loadEnv();
 
-export async function migrate(opts: { reset?: boolean; adminUrl?: string; appUrl?: string; quiet?: boolean } = {}) {
-  const adminUrl = opts.adminUrl ?? process.env.DATABASE_ADMIN_URL;
-  const appUrl = opts.appUrl ?? process.env.DATABASE_URL;
-  if (!adminUrl || !appUrl) throw new Error("Defina DATABASE_ADMIN_URL e DATABASE_URL");
+export async function migrate(opts: { reset?: boolean; adminUrl?: string; appUrl?: string; quiet?: boolean; dir?: string } = {}) {
+  const adminUrl = opts.adminUrl ?? adminDatabaseUrl();
+  const appUrl = opts.appUrl ?? appDatabaseUrl();
+  if (!adminUrl || !appUrl) throw new Error("Defina DATABASE_ADMIN_URL e DATABASE_URL (ou NETLIFY_DB_URL e APP_DB_PASSWORD)");
   const log = (...a: unknown[]) => !opts.quiet && console.log(...a);
 
   const app = new URL(appUrl);
-  if (decodeURIComponent(app.username) !== "injecar_app") {
+  // no Supabase o usuário vem como "injecar_app.<projeto>"
+  if (decodeURIComponent(app.username).split(".")[0] !== "injecar_app") {
     throw new Error("DATABASE_URL deve usar o usuário injecar_app");
   }
   const appPassword = decodeURIComponent(app.password);
@@ -44,7 +46,7 @@ export async function migrate(opts: { reset?: boolean; adminUrl?: string; appUrl
     await sql.unsafe(`create table if not exists public.schema_migrations (name text primary key, applied_at timestamptz not null default now())`);
     await sql.unsafe(`revoke all on public.schema_migrations from injecar_app`);
 
-    const dir = path.resolve(process.cwd(), "db/migrations");
+    const dir = opts.dir ?? path.resolve(process.cwd(), "db/migrations");
     const files = (await readdir(dir)).filter((f) => f.endsWith(".sql")).sort();
     const applied = new Set((await sql`select name from public.schema_migrations`).map((r) => r.name as string));
 

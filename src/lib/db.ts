@@ -15,6 +15,8 @@ export function pool(): postgres.Sql {
       connect_timeout: 10,
       onnotice: () => {},
       transform: { undefined: null },
+      // poolers em modo transação (PgBouncer/Supavisor) não aceitam prepared statements
+      prepare: process.env.DATABASE_PREPARE !== "false",
     });
   }
   return globalForDb.__injecarSql;

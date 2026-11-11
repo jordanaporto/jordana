@@ -113,9 +113,52 @@ class S3Storage implements Storage {
   }
 }
 
+/** Netlify Blobs: armazenamento privado do próprio Netlify (usado na demonstração). */
+class NetlifyBlobsStorage implements Storage {
+  private async store() {
+    const { getStore } = await import("@netlify/blobs");
+    return getStore({ name: "injecar-midia", consistency: "strong" });
+  }
+  async put(key: string, data: Buffer, contentType: string) {
+    const s = await this.store();
+    const ab = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+    await s.set(safeKey(key), ab, { metadata: { contentType } });
+  }
+  async getBuffer(key: string) {
+    const s = await this.store();
+    const ab = await s.get(safeKey(key), { type: "arrayBuffer" });
+    return ab ? Buffer.from(ab) : null;
+  }
+  async get(key: string, range?: { start: number; end?: number }) {
+    const buf = await this.getBuffer(key);
+    if (!buf) return null;
+    const size = buf.length;
+    const start = range ? Math.min(range.start, size - 1) : 0;
+    const end = range ? Math.min(range.end ?? size - 1, size - 1) : size - 1;
+    const part = buf.subarray(start, end + 1);
+    return {
+      body: new Response(part).body as ReadableStream<Uint8Array>,
+      size,
+      contentLength: part.length,
+      range: range ? { start, end } : undefined,
+    };
+  }
+  async remove(key: string) {
+    const s = await this.store();
+    await s.delete(safeKey(key));
+  }
+}
+
 let instance: Storage | null = null;
 export function storage(): Storage {
-  if (!instance) instance = env.storageDriver === "s3" ? new S3Storage() : new LocalStorage(env.storageLocalDir);
+  if (!instance) {
+    instance =
+      env.storageDriver === "s3"
+        ? new S3Storage()
+        : env.storageDriver === "netlify"
+          ? new NetlifyBlobsStorage()
+          : new LocalStorage(env.storageLocalDir);
+  }
   return instance;
 }
 

@@ -5,20 +5,16 @@
 import postgres from "postgres";
 import { hashPassword, validatePasswordStrength } from "../src/lib/auth/password";
 import { loadEnv } from "./env";
+import { adminDatabaseUrl } from "../src/lib/db-url";
 
 loadEnv();
 
-async function main() {
-  const [username, fullName, password] = process.argv.slice(2);
-  if (!username || !fullName || !password) {
-    console.error('Uso: npm run db:create-admin -- <usuario> "<Nome Completo>" <senha>');
-    process.exit(1);
-  }
+export async function createAdmin(username: string, fullName: string, password: string) {
   if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw new Error("Usuário inválido (3-30 letras minúsculas, números, . _ -)");
   const weak = validatePasswordStrength(password);
   if (weak) throw new Error(weak);
 
-  const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1, onnotice: () => {} });
+  const sql = postgres(adminDatabaseUrl()!, { max: 1, onnotice: () => {} });
   try {
     const hash = await hashPassword(password);
     await sql.begin(async (tx) => {
@@ -38,7 +34,14 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error("✗", e.message ?? e);
-  process.exit(1);
-});
+if (process.argv[1]?.endsWith("create-admin.ts")) {
+  const [username, fullName, password] = process.argv.slice(2);
+  if (!username || !fullName || !password) {
+    console.error('Uso: npm run db:create-admin -- <usuario> "<Nome Completo>" <senha>');
+    process.exit(1);
+  }
+  createAdmin(username, fullName, password).catch((e) => {
+    console.error("✗", e.message ?? e);
+    process.exit(1);
+  });
+}

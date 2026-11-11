@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { asUser } from "../db";
+import { env } from "../env";
 import type { SessionUser } from "../auth/session";
 import { storage } from "../storage";
 import { loadReportData, loadReportImages } from "./data";
@@ -19,7 +20,11 @@ export async function generateReport(user: SessionUser, orderId: string) {
   if (!prepared) throw Object.assign(new Error("OS não encontrada"), { code: "P0001" });
 
   const images = await loadReportImages(prepared.data.photos as never);
-  const logo = await readFile(path.join(process.cwd(), "public/brand/logo-sm.png")).catch(() => null);
+  const logo =
+    (await readFile(path.join(process.cwd(), "public/brand/logo-sm.png")).catch(() => null)) ??
+    (await fetch(new URL("/brand/logo-sm.png", env.appUrl))
+      .then(async (r) => (r.ok ? Buffer.from(await r.arrayBuffer()) : null))
+      .catch(() => null));
   const pdf = await renderToBuffer(
     ReportDocument({ data: prepared.data, images, version: prepared.version, generatedBy: user.fullName, logo }),
   );
