@@ -3,6 +3,7 @@
  * aplica as migrações, cria o administrador e, se DEMO_SEED=true, carrega os dados
  * de demonstração.
  */
+import { writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { adminDatabaseUrl, appDatabaseUrl } from "../src/lib/db-url";
 import { createAdmin } from "./create-admin";
@@ -36,7 +37,14 @@ async function findPoolerHost(): Promise<string | null> {
 async function main() {
   if (!process.env.DB_POOLER_HOST) {
     const host = await findPoolerHost();
-    if (host) process.env.DB_POOLER_HOST = host;
+    if (host) {
+      process.env.DB_POOLER_HOST = host;
+      // o servidor do site usa o mesmo endereço em tempo de execução
+      writeFileSync(
+        "src/lib/pooler-host.generated.ts",
+        `// Gerado na publicação (scripts/netlify-build.ts).\nexport const POOLER_HOST = ${JSON.stringify(host)};\n`,
+      );
+    }
   }
   const admin = adminDatabaseUrl();
   const app = appDatabaseUrl();

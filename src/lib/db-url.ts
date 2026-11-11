@@ -5,7 +5,11 @@
  *    pooler em modo transação (porta 6543) e a manutenção, o modo sessão (porta 5432).
  *  - Netlify Database: NETLIFY_DB_URL (dono) + APP_DB_PASSWORD.
  */
+import { POOLER_HOST } from "./pooler-host.generated";
+
 type Env = Record<string, string | undefined>;
+
+const poolerHost = (env: Env) => env.DB_POOLER_HOST || POOLER_HOST || undefined;
 
 function supabaseUrl(user: string, password: string, host: string, port: number, ref: string) {
   return `postgres://${user}.${ref}:${encodeURIComponent(password)}@${host}:${port}/postgres?sslmode=require`;
@@ -13,16 +17,16 @@ function supabaseUrl(user: string, password: string, host: string, port: number,
 
 export function adminDatabaseUrl(env: Env = process.env): string | undefined {
   if (env.DATABASE_ADMIN_URL) return env.DATABASE_ADMIN_URL;
-  if (env.SUPABASE_REF && env.DB_POOLER_HOST && env.DB_ADMIN_PASSWORD) {
-    return supabaseUrl("injecar_admin", env.DB_ADMIN_PASSWORD, env.DB_POOLER_HOST, 5432, env.SUPABASE_REF);
+  if (env.SUPABASE_REF && poolerHost(env) && env.DB_ADMIN_PASSWORD) {
+    return supabaseUrl("injecar_admin", env.DB_ADMIN_PASSWORD, poolerHost(env)!, 5432, env.SUPABASE_REF);
   }
   return env.NETLIFY_DB_URL || undefined;
 }
 
 export function appDatabaseUrl(env: Env = process.env): string | undefined {
   if (env.DATABASE_URL) return env.DATABASE_URL;
-  if (env.SUPABASE_REF && env.DB_POOLER_HOST && env.APP_DB_PASSWORD) {
-    return supabaseUrl("injecar_app", env.APP_DB_PASSWORD, env.DB_POOLER_HOST, 6543, env.SUPABASE_REF);
+  if (env.SUPABASE_REF && poolerHost(env) && env.APP_DB_PASSWORD) {
+    return supabaseUrl("injecar_app", env.APP_DB_PASSWORD, poolerHost(env)!, 6543, env.SUPABASE_REF);
   }
   const base = env.NETLIFY_DB_URL;
   const pw = env.APP_DB_PASSWORD;
