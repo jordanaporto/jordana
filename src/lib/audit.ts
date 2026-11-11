@@ -1,0 +1,20 @@
+export const AUDIT_LABEL: Record<string, string> = {
+  profiles: "Usuário",
+  customers: "Cliente",
+  vehicles: "Veículo",
+  service_orders: "OS",
+  service_order_status_history: "Etapa",
+  service_order_notes: "Observação",
+  checklist_categories: "Categoria do checklist",
+  checklist_items: "Item do checklist (modelo)",
+  service_order_checklist: "Checklist da OS",
+  diagnoses: "Diagnóstico",
+  service_items: "Serviço",
+  service_item_decisions: "Aprovação",
+  media: "Foto/vídeo",
+  message_templates: "Modelo de mensagem",
+  reports: "Relatório",
+  settings: "Configuração",
+  user_credentials: "Senha",
+};
+export const ACTION: Record<string, string> = { INSERT: "criou", UPDATE: "alterou", DELETE: "excluiu" };
