@@ -17,7 +17,8 @@ const csp = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // imagem Docker usa o modo standalone (BUILD_STANDALONE=true)
+  output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
   poweredByHeader: false,
   serverExternalPackages: ["@react-pdf/renderer", "postgres"],
   experimental: {

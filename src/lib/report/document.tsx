@@ -104,12 +104,14 @@ export function ReportDocument({
         {order.intake_notes && <Text style={[s.muted, { marginTop: 3 }]}>Observações da recepção: {order.intake_notes}</Text>}
 
         <Text style={s.h2}>Checklist de inspeção ({evaluated.length} de {checklist.length} itens avaliados)</Text>
-        {cats.map((cat) => (
-          <View key={cat} wrap={false} style={{ marginBottom: 4 }}>
-            <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 2 }}>{cat}</Text>
-            {checklist
-              .filter((c) => c.category_name === cat)
-              .map((c, i) => (
+        {cats.map((cat) => {
+          const rows = checklist.filter((c) => c.category_name === cat);
+          const done = rows.filter((c) => c.result !== "nao_avaliado");
+          const skipped = rows.filter((c) => c.result === "nao_avaliado");
+          return (
+            <View key={cat} wrap={false} style={{ marginBottom: 5 }}>
+              <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 2 }}>{cat}</Text>
+              {done.map((c, i) => (
                 <View key={i} style={s.tr}>
                   <Text style={{ width: "34%" }}>{c.item_name}</Text>
                   <View style={{ width: "18%" }}>
@@ -120,8 +122,14 @@ export function ReportDocument({
                   <Text style={{ width: "48%", color: GRAY }}>{c.note ?? ""}</Text>
                 </View>
               ))}
-          </View>
-        ))}
+              {skipped.length > 0 && (
+                <Text style={[s.muted, { fontSize: 8, marginTop: 2 }]}>
+                  Não avaliados: {skipped.map((c) => c.item_name).join(", ")}
+                </Text>
+              )}
+            </View>
+          );
+        })}
 
         {diagnosis && (
           <View wrap={false}>
@@ -142,7 +150,7 @@ export function ReportDocument({
           </View>
         )}
 
-        <Text style={s.h2}>Serviços recomendados</Text>
+        <Text style={s.h2} minPresenceAhead={60}>Serviços recomendados</Text>
         <View style={[s.tr, { borderBottomColor: INK }]}>
           <Text style={[s.th, { width: "36%" }]}>Serviço / peça</Text>
           <Text style={[s.th, { width: "14%" }]}>Prioridade</Text>
@@ -194,7 +202,7 @@ export function ReportDocument({
 
         {(order.final_notes || notes.length > 0) && (
           <View>
-            <Text style={s.h2}>Observações</Text>
+            <Text style={s.h2} minPresenceAhead={40}>Observações</Text>
             {order.final_notes && <Text style={{ marginBottom: 4 }}>{order.final_notes}</Text>}
             {notes.map((n, i) => (
               <Text key={i} style={{ marginBottom: 2 }}>
@@ -207,7 +215,7 @@ export function ReportDocument({
 
         {images.length > 0 && (
           <View>
-            <Text style={s.h2} break={images.length > 3}>Fotos do atendimento</Text>
+            <Text style={s.h2} minPresenceAhead={160}>Fotos do atendimento</Text>
             <View style={[s.row, { flexWrap: "wrap", justifyContent: "space-between" }]}>
               {images.map((img, i) => (
                 <View key={i} style={s.photo} wrap={false}>
@@ -220,8 +228,8 @@ export function ReportDocument({
           </View>
         )}
 
-        <View wrap={false}>
-          <Text style={s.h2}>Histórico do atendimento</Text>
+        <View>
+          <Text style={s.h2} minPresenceAhead={80}>Histórico do atendimento</Text>
           {history.map((h, i) => (
             <View key={i} style={s.tr}>
               <Text style={{ width: "24%" }}>{dateTime(h.changed_at)}</Text>
