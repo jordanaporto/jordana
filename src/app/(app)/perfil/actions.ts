@@ -29,6 +29,6 @@ export async function changePasswordAction(_prev: ActionState, fd: FormData): Pr
     const hash = await hashPassword(password);
     await asUser(user.id, (sql) => sql`select app.change_own_password(${hash}, ${user.tokenHash})`);
     revalidatePath("/", "layout");
-    return { ok: true, message: "Senha alterada. Outros aparelhos foram desconectados." };
+    return { ok: true, message: "Senha alterada. Outros aparelhos foram desconectados.", redirectTo: user.mustChangePassword ? "/" : undefined };
   });
 }

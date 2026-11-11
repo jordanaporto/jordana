@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
   output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
   poweredByHeader: false,
   serverExternalPackages: ["@react-pdf/renderer", "postgres"],
+  // fontes padrão do gerador de PDF são carregadas dinamicamente: incluir no build standalone
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/pdfkit/js/**/*", "./node_modules/@react-pdf/**/*"],
+  },
   experimental: {
     serverActions: { bodySizeLimit: "2mb" },
     // uploads de vídeo (até 100 MB) passam pelo middleware de autenticação

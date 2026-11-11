@@ -20,7 +20,8 @@ export async function loginAction(_prev: ActionState, fd: FormData): Promise<Act
   });
   if (!ok) return { ...res, values: { username: String(fd.get("username") ?? "") } };
   const user = await getSessionUser();
-  redirect(user ? homeFor(user.role) : "/");
+  if (!user) redirect("/login");
+  redirect(user.mustChangePassword ? "/perfil?trocar-senha=1" : homeFor(user.role));
 }
 
 export async function logoutAction() {

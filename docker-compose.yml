@@ -1,0 +1,75 @@
+# ---------------------------------------------------------------
+# Injecar OS — implantação completa em um servidor (VPS)
+#   docker compose up -d --build
+# Antes: copie deploy/.env.production.example para .env e preencha.
+# ---------------------------------------------------------------
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: injecar
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d injecar"]
+      interval: 5s
+      retries: 20
+
+  # aplica as migrações a cada atualização (e termina)
+  migrate:
+    build: { context: ., target: tools }
+    environment:
+      DATABASE_ADMIN_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/injecar
+      DATABASE_URL: postgres://injecar_app:${APP_DB_PASSWORD:?defina APP_DB_PASSWORD}@db:5432/injecar
+      NODE_ENV: production
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  app:
+    build: { context: ., target: runner }
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://injecar_app:${APP_DB_PASSWORD}@db:5432/injecar
+      STORAGE_LOCAL_DIR: /data/storage
+    volumes:
+      - media:/data/storage
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  # HTTPS automático (Let's Encrypt) — DOMAIN no .env
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN:?defina DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [app]
+
+  # backup diário do banco (mantém 14 dias) em ./backups
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c 'while true; do
+        pg_dump -h db -U postgres -d injecar -Fc -f /backups/injecar-$$(date +%Y%m%d-%H%M).dump &&
+        find /backups -name "*.dump" -mtime +14 -delete;
+        sleep 86400; done'
+    depends_on:
+      db: { condition: service_healthy }
+
+volumes:
+  db-data:
+  media:
+  caddy-data:

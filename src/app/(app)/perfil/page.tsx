@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth/session";
 import { ROLE_LABEL } from "@/lib/roles";
-import { Card, PageHeader, SectionTitle } from "@/components/ui";
+import { Alert, Card, PageHeader, SectionTitle } from "@/components/ui";
 import { logoutAction } from "@/app/login/actions";
 import { PasswordForm } from "./password-form";
 
@@ -11,6 +11,11 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto max-w-lg">
       <PageHeader title={user.fullName} subtitle={`${ROLE_LABEL[user.role]} · usuário ${user.username}`} />
+      {user.mustChangePassword && (
+        <div className="mb-4">
+          <Alert kind="warning">Sua senha é provisória. Crie uma senha pessoal para continuar usando o sistema.</Alert>
+        </div>
+      )}
       <SectionTitle>Trocar senha</SectionTitle>
       <Card>
         <PasswordForm />

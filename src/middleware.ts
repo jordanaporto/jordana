@@ -10,7 +10,12 @@ const PUBLIC_PREFIXES = ["/login", "/api/whatsapp/webhook", "/api/tasks", "/api/
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) return NextResponse.next();
-  if (req.cookies.has("injecar_session")) return NextResponse.next();
+  if (req.cookies.has("injecar_session")) {
+    // repassa o caminho para o servidor (usado para exigir troca de senha provisória)
+    const headers = new Headers(req.headers);
+    headers.set("x-pathname", pathname);
+    return NextResponse.next({ request: { headers } });
+  }
   if (pathname.startsWith("/api/")) return NextResponse.json({ error: "não autenticado" }, { status: 401 });
   const url = req.nextUrl.clone();
   url.pathname = "/login";

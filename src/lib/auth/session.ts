@@ -95,6 +95,11 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(roles?: readonly Role[]): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) redirect("/login");
+  if (user.mustChangePassword) {
+    const path = (await headers()).get("x-pathname") ?? "";
+    // "/login": renderização dentro da própria ação de login — não redirecionar de novo
+    if (path && path !== "/perfil" && path !== "/login") redirect("/perfil?trocar-senha=1");
+  }
   if (roles && !roles.includes(user.role)) redirect("/?sem-permissao=1");
   return user;
 }

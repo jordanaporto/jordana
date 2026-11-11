@@ -1,23 +1,31 @@
-# 2. Arquitetura proposta
+# 2. Arquitetura (como foi implementada)
+
+> Revisão após a decisão de **não usar Netlify**: o sistema roda em qualquer servidor com Docker
+> (VPS) ou em serviços gerenciados. Nada depende de um fornecedor específico.
 
 ## 2.1 Stack
 
 | Camada | Escolha | Por quê |
 |--------|---------|---------|
-| Aplicação web | **Next.js 15 (App Router) + React + TypeScript** | Frontend e backend no mesmo projeto (Server Components + Server Actions + Route Handlers). Um só deploy, um só repositório. |
-| Interface | **Tailwind CSS + componentes próprios (padrão shadcn/ui, Radix)** | Rápido de manter, acessível, fácil aplicar a identidade Injecar. |
-| PWA | Manifesto + service worker | Instalar na tela inicial do celular como um app, sem loja. |
-| Banco | **PostgreSQL (Supabase)** | Relacional, robusto, com Row Level Security (RLS) para permissões no próprio banco. |
-| Autenticação | **Supabase Auth** | Senhas com hash, sessões por cookie httpOnly, renovação de token, bloqueio de usuário. |
-| Arquivos | **Supabase Storage (buckets privados)** | Fotos/vídeos nunca públicos; acesso só por URL assinada de curta duração. Políticas de acesso no mesmo modelo do banco. |
-| Validação | **Zod** | Mesmo esquema valida no formulário (cliente) e na Server Action (servidor). |
-| PDF | **@react-pdf/renderer** (no servidor) | Relatório gerado a partir de componentes React, sem navegador headless. |
-| WhatsApp | **WhatsApp Business Platform — Cloud API (Meta)** via adaptador | Integração oficial. Enquanto não aprovada, adaptador "manual" (link oficial `wa.me`). |
-| Tarefas agendadas | **Netlify Scheduled Functions** (ou `pg_cron` do Supabase) | Enviar fila de mensagens e calcular alertas. |
-| Testes | **Vitest** (unidade), **testes SQL** em Postgres (RLS, triggers, regras), **Playwright** (ponta a ponta no celular emulado) | Cada módulo só avança com testes passando. |
-| CI | GitHub Actions | Lint, typecheck, testes a cada push. |
+| Aplicação web | **Next.js 15 (App Router) + React 19 + TypeScript** | Frontend e backend no mesmo projeto (Server Components, Server Actions, Route Handlers). Um deploy, um repositório. |
+| Interface | **Tailwind CSS 4 + componentes próprios** | Identidade Injecar (vermelho `#c80000`, preto `#0d0d0d`, branco), botões de 56 px, mobile-first. |
+| PWA | Manifesto + service worker | Instala na tela inicial do celular; página “sem conexão”. Não guarda dados de clientes em cache. |
+| Banco | **PostgreSQL 15+** | Pode ser o do próprio servidor (Docker), o do Supabase, Neon, RDS… — é Postgres puro. |
+| Autenticação | **Própria, no servidor** | Usuário + senha (mecânico não precisa de e-mail), hash **scrypt**, sessão em cookie httpOnly com token aleatório guardado como hash no banco, bloqueio após 5 tentativas, desativação imediata. |
+| Permissões | **Row Level Security no Postgres** | A aplicação conecta como `injecar_app` (sem bypass de RLS). Cada transação informa o usuário (`app.user_id`); o banco decide o que ele pode ver/alterar. |
+| Arquivos | **Armazenamento privado: pasta local ou S3 compatível** | AWS S3, Cloudflare R2, Supabase Storage (S3), MinIO. Nunca público: toda foto passa por `/api/media/:id`, que confere sessão e permissão a cada acesso. |
+| Validação | **Zod** + restrições no banco | Mesma regra no formulário e no servidor; o banco tem CHECK/FK/únicos como última barreira. |
+| PDF | **@react-pdf/renderer** no servidor | Relatório gerado sem navegador; versões guardadas no armazenamento privado. |
+| WhatsApp | **WhatsApp Business Platform — Cloud API (Meta)** | Fila de mensagens no banco; modo manual oficial (`wa.me`) até a Meta aprovar os modelos. |
+| Tarefas | Worker interno (a cada 1 min) ou cron externo em `/api/tasks/outbox` | Processa a fila de mensagens da API. Alertas são calculados em tempo real por view. |
+| Testes | **Vitest** (unidade + banco real) e **Playwright** (ponta a ponta no celular) | 43 testes de unidade/banco + 10 cenários de ponta a ponta. |
+| Implantação | **Docker Compose**: app + Postgres + Caddy (HTTPS automático) + backup diário | Um comando sobe tudo num VPS. Veja [08-implantacao.md](08-implantacao.md). |
 
-**Por que Supabase e não montar backend próprio:** banco + autenticação + armazenamento + políticas de acesso num só serviço gerenciado, com backups. Evita manter servidor, fila e S3 separados no MVP. Como é Postgres puro, não há aprisionamento: o banco pode ser migrado para qualquer Postgres depois.
+### Por que trocamos Supabase Auth por autenticação própria
+
+- Mecânicos entram com **usuário** (ex.: `joao`), sem e-mail.
+- Com autenticação no próprio servidor, **a regra de acesso fica toda no Postgres** (RLS) e o sistema roda em qualquer hospedagem.
+- O Supabase continua sendo uma ótima opção para **hospedar o banco e as fotos** (Postgres + Storage S3): basta apontar as variáveis de ambiente. As migrações já bloqueiam a API automática do Supabase (`anon`/`authenticated`).
 
 ## 2.2 Visão geral
 
@@ -29,115 +37,84 @@ flowchart LR
     D[PC do admin / gestão]
   end
 
-  subgraph Netlify
-    N[Next.js<br/>Server Components<br/>Server Actions<br/>Route Handlers]
-    C[Funções agendadas<br/>fila WhatsApp / alertas]
-  end
-
-  subgraph Supabase["Supabase (sa-east-1)"]
-    AU[Auth]
-    PG[(PostgreSQL<br/>RLS + triggers de auditoria)]
-    ST[Storage privado<br/>os-media / reports]
+  subgraph Servidor["Servidor (Docker)"]
+    C[Caddy<br/>HTTPS]
+    N[Next.js<br/>páginas + ações + APIs<br/>worker da fila]
+    PG[(PostgreSQL<br/>RLS · auditoria · regras)]
+    ST[(Fotos/vídeos/PDF<br/>pasta privada ou S3)]
+    B[Backup diário]
   end
 
   W[WhatsApp Cloud API<br/>Meta]
 
-  M & A & D -->|HTTPS| N
-  M -->|upload direto com URL assinada| ST
-  N --> AU
-  N --> PG
-  N -->|URLs assinadas| ST
-  C --> PG
-  C -->|mensagens de modelo| W
-  W -->|webhook de status| N
+  M & A & D -->|HTTPS| C --> N
+  N -->|injecar_app + app.user_id| PG
+  N --> ST
+  N -->|modelos aprovados| W
+  W -->|webhook assinado| N
+  B --> PG
 ```
 
-## 2.3 Princípios de projeto
+## 2.3 Princípios aplicados
 
-1. **Segurança no banco, não só na tela.** Toda tabela tem RLS. Mesmo que alguém chame a API diretamente, o banco recusa o que o perfil não pode fazer. A aplicação usa a sessão do próprio usuário para consultar o banco; a chave de serviço (que ignora RLS) só é usada em tarefas internas no servidor (fila de mensagens, webhook, geração de PDF).
-2. **Regras críticas em funções do banco.** Mudança de status, registro de aprovação e encerramento de OS são funções SQL transacionais (`change_service_order_status`, `record_service_item_decision`...). Garante que histórico, auditoria e fila de WhatsApp sejam gravados juntos ou nada é gravado.
-3. **Histórico imutável.** Tabelas de histórico (status, aprovações, observações, auditoria) aceitam apenas inserção. Demais registros usam exclusão lógica (`deleted_at`), permitida só ao admin.
-4. **Auditoria automática.** Trigger genérico grava em `audit_log` toda inserção/alteração/exclusão: tabela, registro, antes/depois, campos alterados, usuário, perfil e horário. Não depende do programador lembrar.
-5. **Módulos por domínio.** O código é organizado por assunto (OS, checklist, mídia, orçamento, mensagens…), cada um com seus esquemas, ações, consultas e componentes.
-6. **Integrações atrás de interfaces.** WhatsApp é um `MessagingProvider` com implementações `manual` e `cloud_api`. Trocar de provedor (ou usar um BSP no futuro) não mexe no resto.
-7. **Indicadores a partir de eventos.** Como cada mudança de status é registrada com horário, todos os indicadores de tempo (diagnóstico, aprovação, por etapa, por mecânico) saem de *views* SQL sobre o histórico — a V2 de gestão é só consulta, sem refazer o modelo.
+1. **Segurança no banco, não só na tela.** Todas as tabelas com RLS; a aplicação não é dona das tabelas e só recebe permissão nas colunas que pode alterar. Exemplo: ninguém consegue `UPDATE service_orders SET status = …` — só pela função `app.change_status`, que valida perfil e transição.
+2. **Regras críticas em funções transacionais.** Abrir OS, mudar etapa, registrar aprovação, executar serviço, anonimizar cliente: histórico, auditoria e fila de WhatsApp gravados juntos.
+3. **Histórico imutável.** Linha do tempo, decisões do cliente, observações e auditoria só aceitam inserção. A aplicação não tem permissão de `DELETE` em nenhuma tabela; remoções são lógicas (com motivo) e só do admin.
+4. **Auditoria automática.** Trigger em todas as tabelas de negócio grava antes/depois, campos alterados, usuário, perfil, data/hora e a OS relacionada.
+5. **Autoria à prova de falsificação.** `created_by`, `updated_by`, `uploaded_by`, `changed_by`… são preenchidos pelo banco a partir da sessão.
+6. **Indicadores a partir de eventos.** Tempos por etapa, alertas e KPIs saem de *views* sobre o histórico (`v_status_durations`, `v_alerts`, `v_kpi_orders`).
 
 ## 2.4 Estrutura de pastas
 
 ```
-/
-├── docs/                         # este plano
-├── supabase/
-│   ├── migrations/               # SQL versionado (tabelas, enums, RLS, triggers, funções, views)
-│   ├── seed.sql                  # checklist inicial, modelos de mensagem, configurações
-│   └── tests/                    # testes SQL de RLS, auditoria e regras de status
-├── src/
-│   ├── app/
-│   │   ├── (auth)/login/
-│   │   ├── (app)/                # área logada (layout mobile + desktop)
-│   │   │   ├── patio/            # carros na oficina (home de atendimento/admin)
-│   │   │   ├── meus-carros/      # home do mecânico
-│   │   │   ├── os/nova/
-│   │   │   ├── os/[id]/          # ficha da OS (resumo, checklist, mídia, diagnóstico, serviços, linha do tempo)
-│   │   │   ├── clientes/
-│   │   │   ├── veiculos/[id]/    # ficha + histórico do veículo
-│   │   │   ├── mensagens/        # fila de WhatsApp
-│   │   │   ├── admin/            # dashboard, usuários, checklist, modelos, alertas, auditoria, config
-│   │   │   └── gestao/           # indicadores
-│   │   └── api/
-│   │       ├── whatsapp/webhook/ # recebe status de entrega da Meta (assinatura verificada)
-│   │       ├── os/[id]/relatorio/# gera PDF
-│   │       └── tarefas/          # endpoints chamados pelas funções agendadas (protegidos por segredo)
-│   ├── modules/
-│   │   ├── auth/  customers/  vehicles/  service-orders/  checklist/
-│   │   ├── media/  diagnosis/  quotes/  messaging/  reports/  alerts/  audit/
-│   │   │   └── (cada um: schema.ts, actions.ts, queries.ts, components/)
-│   ├── components/ui/            # botões, cards, chips de status, bottom sheet...
-│   └── lib/                      # clientes Supabase, permissões, formatação (moeda, placa, telefone)
-└── tests/e2e/                    # Playwright
+db/migrations/            SQL versionado (tabelas, RLS, triggers, funções, views, dados iniciais)
+scripts/                  migrate.ts · create-admin.ts · demo-data.ts
+src/app/login/            tela de login
+src/app/(app)/            área logada
+  meus-carros/  patio/  os/nova/  os/[id]/(resumo|checklist|fotos|diagnostico|servicos|historico|mensagens|relatorio)
+  clientes/  veiculos/  buscar/  mensagens/  gestao/  perfil/
+  admin/ (dashboard, usuarios, checklist, mensagens, alertas, empresa, auditoria, lgpd, config)
+src/app/api/              media (upload/entrega), relatorio (PDF), whatsapp/webhook, tasks/outbox, health, admin/lgpd/export
+src/lib/                  db, auth, storage, whatsapp, report (PDF), validation, format, status, roles
+src/components/           UI, formulários, câmera/upload, barra de etapas, cartões
+tests/unit · tests/db · tests/e2e
+deploy/                   Caddyfile, exemplo de .env de produção
 ```
 
 ## 2.5 Segurança e LGPD
 
-| Tema | Como será tratado |
-|------|-------------------|
-| Autenticação | Supabase Auth, senha mínima de 8 caracteres, sessão em cookie httpOnly/secure, logout em todos os dispositivos, usuário desativado perde acesso imediatamente (checado no RLS). |
-| Autorização | Perfil (`mecanico`, `atendimento`, `admin`, `gestao`) em `profiles`; RLS em todas as tabelas; checagem repetida nas Server Actions para mensagens de erro amigáveis. Mecânico só vê as OS atribuídas a ele. |
-| Validação | Zod em todas as entradas; restrições no banco (CHECK, NOT NULL, FK, únicos). Placa (padrão antigo e Mercosul), telefone (E.164 BR), CPF com dígito verificador. |
-| Mídia | Buckets privados; caminho `vehicle/{veiculo}/os/{os}/{uuid}`; upload por URL assinada emitida pelo servidor só para quem pode editar a OS; leitura por URL assinada de 10 minutos; tipos permitidos (jpeg/png/webp/heic, mp4/quicktime/webm) e limite de tamanho. |
-| Auditoria | `audit_log` via trigger, só inserção, visível apenas ao admin. |
-| Proteção de dados pessoais | Coleta mínima (CPF opcional); consentimento de WhatsApp registrado; função de **anonimização** do cliente (atende pedido de eliminação mantendo o histórico técnico do veículo); exportação dos dados de um cliente (direito de acesso); banco e arquivos no Brasil; criptografia em repouso e em trânsito (Supabase/TLS); backups diários. |
-| Cabeçalhos e boas práticas | CSP, `X-Frame-Options`, `Referrer-Policy`, cookies `SameSite`, proteção CSRF nativa das Server Actions, limitação de tentativas de login, segredos só em variáveis de ambiente, webhook da Meta com verificação de assinatura `X-Hub-Signature-256`. |
-| Logs | Sem dados pessoais em logs de aplicação. |
+| Tema | Implementação |
+|------|---------------|
+| Senhas | scrypt (N=2¹⁶) com sal; troca obrigatória no primeiro acesso; mínimo 8 caracteres com letras e números. |
+| Sessão | Token de 256 bits em cookie `httpOnly`, `SameSite=Lax`, `Secure` em HTTPS; no banco só o hash SHA-256; 30 dias; trocar senha/desativar derruba as outras sessões. |
+| Força bruta | 5 falhas em 15 min bloqueiam o usuário; limite também por IP. Tempo de resposta igual para usuário inexistente. |
+| Autorização | RLS + grants por coluna + funções que checam perfil; checagem repetida nas páginas para redirecionar. |
+| Mecânico | Vê só as OS dele (e o histórico dos carros que estão com ele). Não vê CPF, telefone nem valores. Não exclui nada. |
+| Mídia | Tipo real conferido pelos bytes (não pela extensão); limite 100 MB; arquivos com permissão 600; entrega só após checar permissão; suporte a Range para vídeo. |
+| Cabeçalhos | CSP restritiva, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, HSTS, `Permissions-Policy`. |
+| Webhook Meta | Assinatura `X-Hub-Signature-256` verificada com tempo constante; token de verificação. |
+| LGPD | Coleta mínima (CPF opcional); consentimento de WhatsApp com data e responsável; exportação dos dados do titular; anonimização que também limpa a auditoria e as mensagens; nada de dados pessoais em logs; robots bloqueados. |
 
-## 2.6 WhatsApp — desenho da integração
+## 2.6 WhatsApp — fluxo
 
 ```mermaid
 sequenceDiagram
-  participant U as Usuário (muda status)
+  participant U as Usuário
   participant DB as Postgres
-  participant Q as outbound_messages (fila)
-  participant J as Tarefa agendada
-  participant P as Provider (manual | cloud_api)
-  participant Meta as WhatsApp Cloud API
+  participant Q as outbound_messages
+  participant W as Worker (1 min)
+  participant Meta as Cloud API
 
-  U->>DB: change_service_order_status(os, 'em_diagnostico')
-  DB->>DB: grava histórico + auditoria
-  DB->>Q: se há modelo ativo p/ o status e cliente consentiu → enfileira (status = queued)
-  alt provider = cloud_api
-    J->>Q: busca mensagens queued
-    J->>P: send(template, variáveis, telefone)
-    P->>Meta: POST /messages (template)
-    Meta-->>P: id da mensagem
-    P->>Q: status = sent
-    Meta-->>DB: webhook: delivered / read / failed
-  else provider = manual
-    U->>Q: abre "Mensagens pendentes" → botão "Enviar no WhatsApp" (wa.me)
-    U->>Q: confirma "Enviado" (registra quem e quando)
+  U->>DB: app.change_status(os, 'pronto_retirada')
+  DB->>Q: modelo ativo + cliente autorizou → na_fila
+  alt provedor = cloud_api (modelo aprovado na Meta)
+    W->>Q: app.outbox_claim()
+    W->>Meta: POST /{phone_id}/messages (template)
+    W->>Q: app.outbox_complete(id, wamid)
+    Meta-->>DB: webhook: entregue / lida / falhou
+  else provedor = manual
+    U->>Q: "Abrir no WhatsApp" (wa.me) → "Marcar como enviada"
   end
 ```
 
-- **Fila (outbox)** garante que a mensagem não se perde se a Meta estiver fora e permite reenvio, cancelamento e auditoria.
-- **Modelos** (`message_templates`) ligados a um status-gatilho, com variáveis `{nome}`, `{modelo}`, `{placa}`, `{numero_os}`, `{oficina}`. Para a API, cada modelo guarda `meta_template_name` e o idioma (`pt_BR`), e as variáveis são mapeadas para `{{1}}`, `{{2}}`…
-- **Respostas do cliente** (inbox) ficam para a V2; o webhook já grava todos os eventos brutos para não perder nada.
-- **Aprovação por link (V2):** a tabela de aprovações já tem o método `link`; na V2 entra uma página pública com token aleatório, de uso único e com validade, que mostra só o orçamento daquela OS.
+Detalhes de configuração da Meta em [09-whatsapp.md](09-whatsapp.md).
