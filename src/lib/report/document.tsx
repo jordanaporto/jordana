@@ -43,11 +43,13 @@ export function ReportDocument({
   images,
   version,
   generatedBy,
+  logo,
 }: {
   data: NonNullable<ReportData>;
   images: { data: Buffer; format: "jpg" | "png"; caption: string }[];
   version: number;
   generatedBy: string;
+  logo?: Buffer | null;
 }) {
   const { order, customer, vehicle, company, checklist, diagnosis, items, history, notes, technicians } = data;
   const approved = items.filter((i) => i.approval_status === "aprovado");
@@ -62,7 +64,12 @@ export function ReportDocument({
       <Page size="A4" style={s.page}>
         <View style={s.header} fixed>
           <View>
-            <Text style={s.brand}>{(company.name || "Injecar Auto Center").toUpperCase()}</Text>
+            {logo ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- Image do PDF não tem alt
+              <Image src={{ data: logo, format: "png" }} style={{ width: 130, height: 48, objectFit: "contain", marginBottom: 3 }} />
+            ) : (
+              <Text style={s.brand}>{(company.name || "Injecar Auto Center").toUpperCase()}</Text>
+            )}
             <Text style={s.brandSub}>RELATÓRIO DE ATENDIMENTO</Text>
             <Text style={[s.muted, { fontSize: 7.5, marginTop: 2 }]}>
               {[company.cnpj && `CNPJ ${company.cnpj}`, company.address, company.phone].filter(Boolean).join(" · ")}

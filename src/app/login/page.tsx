@@ -13,7 +13,7 @@ export default async function LoginPage() {
     <main className="flex min-h-dvh flex-col bg-ink px-4 py-10 text-white">
       <div className="mx-auto w-full max-w-sm flex-1">
         <div className="mb-10 mt-6 flex flex-col items-center gap-3">
-          <Logo className="h-14" inverted />
+          <Logo className="h-24" />
           <p className="text-sm text-zinc-400">Sistema de ordens de serviço</p>
         </div>
         <div className="rounded-2xl bg-white p-6 text-ink shadow-xl">

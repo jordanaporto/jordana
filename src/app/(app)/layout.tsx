@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="lg:flex">
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-ink p-4 text-white lg:flex">
         <Link href="/" className="mb-8 px-2 pt-2">
-          <Logo className="h-9" inverted />
+          <Logo className="h-14" />
         </Link>
         <SideNav items={navFor(user.role)} counts={counts} />
         <div className="mt-auto rounded-xl bg-white/5 p-3 text-sm">
@@ -37,7 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-20 flex h-14 items-center justify-between bg-ink px-4 text-white lg:hidden">
           <Link href="/" aria-label="Início">
-            <Logo className="h-7" inverted />
+            <Logo className="h-10" />
           </Link>
           <Link href="/perfil" className="text-right text-xs leading-tight">
             <div className="font-semibold">{user.fullName.split(" ")[0]}</div>

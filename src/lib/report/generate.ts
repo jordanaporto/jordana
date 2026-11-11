@@ -1,4 +1,6 @@
 import "server-only";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { asUser } from "../db";
 import type { SessionUser } from "../auth/session";
@@ -17,8 +19,9 @@ export async function generateReport(user: SessionUser, orderId: string) {
   if (!prepared) throw Object.assign(new Error("OS não encontrada"), { code: "P0001" });
 
   const images = await loadReportImages(prepared.data.photos as never);
+  const logo = await readFile(path.join(process.cwd(), "public/brand/logo-sm.png")).catch(() => null);
   const pdf = await renderToBuffer(
-    ReportDocument({ data: prepared.data, images, version: prepared.version, generatedBy: user.fullName }),
+    ReportDocument({ data: prepared.data, images, version: prepared.version, generatedBy: user.fullName, logo }),
   );
   const key = `relatorios/${orderId}/v${prepared.version}-${Date.now()}.pdf`;
   await storage().put(key, pdf, "application/pdf");
