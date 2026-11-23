@@ -56,6 +56,7 @@ Toda OS nasce com um **link único** para o cliente. Ele já vai no fim da mensa
 - Quando a OS está em **Aguardando aprovação**, o cliente **aprova ou recusa cada serviço pelo próprio celular**. A decisão fica registrada como *via Link de aprovação*, com data e hora, e a equipe recebe aviso no celular.
 - O cliente pode tocar em **Ativar avisos** e passa a receber, **de graça**, um aviso no celular a cada etapa (inspeção, diagnóstico, orçamento, manutenção, peça, teste, pronto). No iPhone, ele precisa antes adicionar o link à Tela de Início.
 - A ficha mostra quantas vezes o link foi aberto, o último acesso e se o cliente ativou os avisos.
+- Dificuldade para ativar os avisos? A página tem um **passo a passo animado** (Android e iPhone, abre no tipo de celular do cliente). Os mesmos passos em GIF, para mandar no WhatsApp: [Android](imagens/guia-avisos-android.gif) · [iPhone](imagens/guia-avisos-iphone.gif).
 - Segurança: o link é longo e impossível de adivinhar, não mostra telefone, CPF nem sobrenome, não aparece no Google e expira 30 dias após a entrega.
 
 ## Avisos no celular (todos os perfis)

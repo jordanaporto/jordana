@@ -57,3 +57,18 @@ details > summary::-webkit-details-marker {
     display: none !important;
   }
 }
+
+/* passo a passo dos avisos no celular */
+@keyframes push-guide-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes push-guide-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.push-guide-pulse { animation: push-guide-pulse 1.4s ease-out infinite; }
+.push-guide-fade { animation: push-guide-fade 0.35s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .push-guide-pulse, .push-guide-fade { animation: none; }
+}

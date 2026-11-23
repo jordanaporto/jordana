@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, BellOff } from "lucide-react";
+import { PushGuide, PushUnblockHelp } from "@/components/push-guide";
 import { Alert, cx } from "@/components/ui";
 import { removePushSubscription, savePushSubscription, sendTestPush } from "./push-actions";
 
@@ -92,15 +93,18 @@ export function PushToggle({ publicKey }: { publicKey: string }) {
         de carro parado.
       </p>
       {state === "iphone-instalar" && (
-        <Alert kind="info">
-          No iPhone, primeiro instale o app: no Safari toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>. Depois abra
-          pelo ícone e ative os avisos aqui.
-        </Alert>
+        <>
+          <Alert kind="info">No iPhone, primeiro coloque o sistema na Tela de Início e abra pelo ícone. Siga os passos:</Alert>
+          <PushGuide initial="iphone" buttonLabel="Ativar avisos neste aparelho" />
+        </>
       )}
-      {state === "sem-suporte" && <Alert kind="warning">Este navegador não aceita avisos. Use o Chrome (Android) ou o app instalado (iPhone).</Alert>}
-      {state === "bloqueado" && (
-        <Alert kind="warning">Os avisos estão bloqueados para este site. Libere em Configurações do navegador → Notificações.</Alert>
+      {state === "sem-suporte" && (
+        <>
+          <Alert kind="warning">Este navegador não aceita avisos. Use o Chrome (Android) ou o Safari (iPhone):</Alert>
+          <PushGuide buttonLabel="Ativar avisos neste aparelho" />
+        </>
       )}
+      {state === "bloqueado" && <PushUnblockHelp />}
       {(state === "desativado" || state === "ativado") && (
         <button
           type="button"
@@ -121,6 +125,14 @@ export function PushToggle({ publicKey }: { publicKey: string }) {
         </button>
       )}
       {msg && <Alert kind={msg.kind}>{msg.text}</Alert>}
+      {state === "desativado" && (
+        <details>
+          <summary className="cursor-pointer text-sm font-semibold text-brand">Ficou com dúvida? Veja o passo a passo</summary>
+          <div className="mt-3">
+            <PushGuide buttonLabel="Ativar avisos neste aparelho" />
+          </div>
+        </details>
+      )}
     </div>
   );
 }

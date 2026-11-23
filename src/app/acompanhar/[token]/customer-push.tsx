@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, CheckCircle2 } from "lucide-react";
+import { PushGuide, PushUnblockHelp } from "@/components/push-guide";
 
 function keyToBytes(base64url: string) {
   const pad = "=".repeat((4 - (base64url.length % 4)) % 4);
@@ -16,6 +17,7 @@ export function CustomerPush({ token, publicKey, active }: { token: string; publ
   const [state, setState] = useState<State>("carregando");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [guide, setGuide] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -66,12 +68,21 @@ export function CustomerPush({ token, publicKey, active }: { token: string; publ
     );
   if (state === "iphone")
     return (
-      <p className="text-sm text-zinc-700">
-        No iPhone, toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>, abra pelo novo ícone e volte aqui para ativar os avisos.
-      </p>
+      <div className="space-y-3">
+        <p className="text-sm text-zinc-700">
+          No iPhone, primeiro coloque o acompanhamento na <b>Tela de Início</b> e abra por lá. Siga os passos:
+        </p>
+        <PushGuide initial="iphone" />
+      </div>
     );
-  if (state === "bloqueado") return <p className="text-sm text-zinc-700">Os avisos estão bloqueados neste navegador. Libere nas configurações de notificações.</p>;
-  if (state === "sem-suporte") return <p className="text-sm text-zinc-700">Este navegador não aceita avisos. Abra o link pelo Chrome ou Safari.</p>;
+  if (state === "bloqueado") return <PushUnblockHelp />;
+  if (state === "sem-suporte")
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-zinc-700">Este navegador não aceita avisos. Abra o link pelo <b>Chrome</b> (Android) ou pelo <b>Safari</b> (iPhone):</p>
+        <PushGuide />
+      </div>
+    );
   return (
     <div>
       <p className="mb-3 text-sm text-zinc-700">Receba um aviso no celular a cada etapa do serviço, sem precisar abrir o link.</p>
@@ -79,6 +90,14 @@ export function CustomerPush({ token, publicKey, active }: { token: string; publ
         <Bell className="size-5" /> {busy ? "Ativando…" : "Ativar avisos"}
       </button>
       {error && <p className="mt-2 text-sm font-semibold text-brand">{error}</p>}
+      <button type="button" onClick={() => setGuide((v) => !v)} className="mt-3 w-full text-center text-sm font-semibold text-brand underline">
+        {guide ? "Fechar passo a passo" : "Ficou com dúvida? Veja o passo a passo"}
+      </button>
+      {guide && (
+        <div className="mt-3">
+          <PushGuide />
+        </div>
+      )}
     </div>
   );
 }
