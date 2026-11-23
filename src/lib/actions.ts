@@ -9,6 +9,7 @@ export type ActionState = {
   fieldErrors?: FieldErrors;
   values?: Record<string, string>;
   redirectTo?: string;
+  data?: Record<string, string>;
 };
 
 export const initialState: ActionState = { ok: false };

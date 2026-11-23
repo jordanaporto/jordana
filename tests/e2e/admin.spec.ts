@@ -10,6 +10,7 @@ test.describe.serial("administração", () => {
     await page.fill("input[name=full_name]", "Carla Souza");
     await page.fill("input[name=username]", "carla");
     await page.selectOption("select[name=role]", "mecanico");
+    await page.getByText("Prefiro definir uma senha provisória").click();
     await page.fill("input[name=password]", "Provisoria1");
     await page.getByRole("button", { name: "Criar usuário" }).click();
     await expect(page.getByText(/Usuário carla criado/)).toBeVisible();

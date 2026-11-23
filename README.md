@@ -13,7 +13,7 @@ Primeira oficina atendida: **Injecar Auto Center** (Castanhal-PA).
 
 | Módulo | Destaques |
 |--------|-----------|
-| Acesso | Login individual (usuário + senha), 4 perfis (mecânico, atendimento, administrador, gestão), troca de senha obrigatória no 1º acesso, bloqueio por tentativas |
+| Acesso | Login individual (usuário + senha), 4 perfis (mecânico, atendimento, administrador, gestão), convite por link para a pessoa criar a própria senha (uso único, 48 h), bloqueio por tentativas |
 | Clientes e veículos | Cadastro, busca por placa/telefone/nome/CPF, vários veículos por cliente, consentimento de WhatsApp (LGPD) |
 | Ordem de serviço | Assistente de abertura, 13 etapas + cancelamento, regras por perfil, motivo obrigatório para voltar/cancelar, data/hora/usuário em tudo |
 | Pátio e “Meus carros” | Cartões grandes por etapa, tempo na etapa, alertas, filtro por mecânico |

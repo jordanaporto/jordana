@@ -9,9 +9,13 @@ export const metadata = { title: "Usuários" };
 
 export default async function UsersPage() {
   const admin = await requireUser(ADMIN);
-  const users = await asUser(admin.id, (sql) => sql`
-    select id, username, full_name, role, phone, active, created_at
-      from profiles order by active desc, role, full_name`);
+  const { users, access } = await asUser(admin.id, async (sql) => ({
+    users: await sql`
+      select id, username, full_name, role, phone, active, created_at
+        from profiles order by active desc, role, full_name`,
+    access: await sql`select * from app.admin_users_access()`,
+  }));
+  const acc = new Map(access.map((a) => [a.user_id as string, a]));
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -32,13 +36,19 @@ export default async function UsersPage() {
                 <div className="text-sm text-zinc-600">
                   {u.username} · {ROLE_LABEL[u.role as Role]} · desde {dateTime(u.created_at)}
                 </div>
+                {u.active && acc.get(u.id)?.invite_expires_at ? (
+                  <div className="text-sm font-semibold text-amber-700">Convite enviado · aguardando criar a senha</div>
+                ) : u.active && acc.get(u.id)?.must_change_password ? (
+                  <div className="text-sm font-semibold text-amber-700">Ainda não fez o primeiro acesso</div>
+                ) : null}
               </div>
               <span className="text-sm font-semibold text-brand group-open:hidden">Editar</span>
             </summary>
             <div className="border-t border-zinc-100 p-4">
               <EditUserForm
-                user={{ id: u.id, full_name: u.full_name, role: u.role, phone: u.phone ?? "", active: u.active }}
+                user={{ id: u.id, full_name: u.full_name, username: u.username, role: u.role, phone: u.phone ?? "", active: u.active }}
                 isSelf={u.id === admin.id}
+                inviteUntil={acc.get(u.id)?.invite_expires_at ? new Date(acc.get(u.id)!.invite_expires_at).toISOString() : null}
               />
             </div>
           </details>

@@ -75,6 +75,16 @@ Tocar no aviso abre a OS direto na aba certa. Quem fez a ação não recebe avis
 - **Administração**: usuários, checklist (categorias e itens), mensagens automáticas, limites de alertas, dados da empresa/WhatsApp, **auditoria** (quem mudou o quê, antes → depois) e **LGPD** (exportar/anonimizar cliente).
 - Pode remover uma foto da galeria (com motivo — continua registrada na auditoria).
 
+### Cadastrar alguém da equipe (convite por link)
+
+1. **Administração → Usuários → Novo usuário**: nome, usuário (login), perfil e WhatsApp.
+2. Toque em **Criar usuário e gerar convite**. Aparece o link com **Enviar no WhatsApp** (mensagem pronta com o usuário e o link) e **Copiar mensagem**.
+3. A pessoa abre o link, vê o próprio usuário, **cria a senha** e já entra. Ninguém mais fica sabendo a senha.
+4. O link vale **48 horas** e **só funciona uma vez**. Na lista aparece *Convite enviado · aguardando criar a senha* até ela usar.
+5. **Esqueceu a senha?** Abra o usuário → **Gerar link de convite** e mande de novo. Gerar outro link cancela o anterior; **Cancelar convite** derruba o link na hora.
+
+Ainda dá para usar senha provisória (em *Prefiro definir uma senha provisória*): a pessoa troca no primeiro acesso.
+
 ## Gestão / proprietário
 
 **Indicadores**: carros atendidos, entregues, faturamento executado, ticket médio, tempo médio de diagnóstico e de aprovação, taxa de aprovação, produtividade por mecânico, faturamento por OS — por período (7, 30, 90 dias, 12 meses).

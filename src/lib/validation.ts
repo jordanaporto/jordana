@@ -195,7 +195,8 @@ export const userCreateSchema = z.object({
   full_name: reqText(2, 120, "Informe o nome"),
   role: z.enum(ROLES),
   phone: optText(30),
-  password: z.string().min(8, "A senha precisa ter ao menos 8 caracteres").max(128),
+  // em branco = gera link de convite para a pessoa criar a própria senha
+  password: z.string().max(128).optional().default(""),
 });
 
 export const userUpdateSchema = z.object({

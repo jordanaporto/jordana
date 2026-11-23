@@ -34,7 +34,7 @@ async function clientInfo() {
 export type LoginResult = { ok: true } | { ok: false; error: string };
 
 export async function login(username: string, password: string): Promise<LoginResult> {
-  const { ip, userAgent } = await clientInfo();
+  const { ip } = await clientInfo();
   const uname = username.trim().toLowerCase();
 
   const [{ n: failures }] = await asSystem((sql) => sql`select app.auth_recent_failures(${uname}, ${ip}) as n`);
@@ -51,12 +51,16 @@ export async function login(username: string, password: string): Promise<LoginRe
   await asSystem((sql) => sql`select app.auth_log_attempt(${uname}, ${ip}, ${success})`);
   if (!success) return { ok: false, error: "Usuário ou senha incorretos" };
 
+  await startSession(row.user_id);
+  return { ok: true };
+}
+
+/** Abre a sessão do usuário neste aparelho (login ou senha criada pelo convite). */
+export async function startSession(userId: string) {
+  const { ip, userAgent } = await clientInfo();
   const token = randomBytes(32).toString("base64url");
   const expires = new Date(Date.now() + SESSION_DAYS * 86400_000);
-  await asSystem(
-    (sql) => sql`select app.auth_create_session(${row.user_id}, ${hashToken(token)}, ${expires}, ${ip}, ${userAgent})`,
-  );
-
+  await asSystem((sql) => sql`select app.auth_create_session(${userId}, ${hashToken(token)}, ${expires}, ${ip}, ${userAgent})`);
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: env.secureCookies,
@@ -64,7 +68,6 @@ export async function login(username: string, password: string): Promise<LoginRe
     path: "/",
     expires,
   });
-  return { ok: true };
 }
 
 export async function logout() {
