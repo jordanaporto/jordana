@@ -47,6 +47,17 @@ Voltar uma etapa ou cancelar: botão **Mais** → escolha → informe o motivo.
 
 Em **Mensagens**: *Enviar agora* (o que já chegou a hora), *Programadas* (lembretes futuros, com dia e hora) e *Todas*.
 
+### Link de acompanhamento do cliente (atendimento)
+
+Toda OS nasce com um **link único** para o cliente. Ele já vai no fim da mensagem de *veículo recebido*.
+
+- Na ficha da OS → **Link de acompanhamento do cliente**: **Copiar**, **Ver como cliente**, **Enviar no WhatsApp** (prepara a mensagem em *Mensagens*) e **Novo link** (o anterior para de funcionar na hora).
+- O cliente, **sem login e sem baixar nada**, vê: a etapa atual em linguagem simples, a linha do tempo, o diagnóstico, as fotos e vídeos marcados para o relatório e o orçamento.
+- Quando a OS está em **Aguardando aprovação**, o cliente **aprova ou recusa cada serviço pelo próprio celular**. A decisão fica registrada como *via Link de aprovação*, com data e hora, e a equipe recebe aviso no celular.
+- O cliente pode tocar em **Ativar avisos** e passa a receber, **de graça**, um aviso no celular a cada etapa (inspeção, diagnóstico, orçamento, manutenção, peça, teste, pronto). No iPhone, ele precisa antes adicionar o link à Tela de Início.
+- A ficha mostra quantas vezes o link foi aberto, o último acesso e se o cliente ativou os avisos.
+- Segurança: o link é longo e impossível de adivinhar, não mostra telefone, CPF nem sobrenome, não aparece no Google e expira 30 dias após a entrega.
+
 ## Avisos no celular (todos os perfis)
 
 Em **Perfil → Avisos no celular → Ativar avisos neste aparelho** (no iPhone, instale o app na tela inicial antes). Você recebe:

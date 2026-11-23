@@ -59,6 +59,12 @@ export async function migrate(opts: { reset?: boolean; adminUrl?: string; appUrl
         await tx`insert into public.schema_migrations (name) values (${file})`;
       });
     }
+    // endereço público (usado no link de acompanhamento enviado ao cliente)
+    const publicUrl = process.env.APP_URL || process.env.URL;
+    if (publicUrl) {
+      await sql`insert into settings (key, value) values ('app.public_url', ${sql.json(publicUrl)})
+                on conflict (key) do update set value = excluded.value`;
+    }
     // nome da oficina configurado na instalação, enquanto a empresa não tiver sido preenchida
     const oficina = process.env.NEXT_PUBLIC_OFICINA_NOME;
     if (oficina) {

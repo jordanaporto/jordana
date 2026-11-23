@@ -67,7 +67,7 @@ export function ItemForm({ categoryId, item, categories }: { categoryId: string;
   );
 }
 
-const VARS_OS = ["nome", "nome_completo", "modelo", "marca", "placa", "numero_os", "oficina"];
+const VARS_OS = ["nome", "nome_completo", "modelo", "marca", "placa", "numero_os", "oficina", "link"];
 const VARS_AGENDA = ["nome", "nome_completo", "modelo", "marca", "placa", "servico", "data", "hora", "dia_semana", "oficina", "endereco"];
 const EVENT_LABEL: Record<string, string> = {
   agendamento_confirmacao: "Ao agendar (confirmação)",
@@ -77,7 +77,7 @@ const EVENT_LABEL: Record<string, string> = {
 const SAMPLE: Record<string, string> = {
   nome: "Maria", nome_completo: "Maria Souza", modelo: "Onix", marca: "Chevrolet", placa: "QZX1A23", numero_os: "0142",
   oficina: brand.name, servico: "Revisão", data: "20/11", hora: "08:00", dia_semana: "quinta-feira",
-  endereco: "Rua Exemplo, 100 – Centro",
+  endereco: "Rua Exemplo, 100 – Centro", link: "https://…/acompanhar/…",
 };
 
 export function TemplateForm({

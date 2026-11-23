@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PREFIXES = ["/login", "/api/whatsapp/webhook", "/api/tasks", "/api/health", "/offline"];
+const PUBLIC_PREFIXES = ["/login", "/api/whatsapp/webhook", "/api/tasks", "/api/health", "/offline", "/acompanhar", "/api/acompanhar"];
 
 /**
  * Barreira inicial: sem cookie de sessão, vai para o login.

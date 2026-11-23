@@ -7,6 +7,7 @@ import { USERS } from "./users";
 
 /** Banco limpo + usuários de teste para cada execução. */
 export default async function globalSetup() {
+  process.env.APP_URL = E2E_ENV.APP_URL; // endereço gravado nos links de acompanhamento
   await migrate({ reset: true, adminUrl: E2E_ENV.DATABASE_ADMIN_URL, appUrl: E2E_ENV.DATABASE_URL, quiet: true });
   await rm(E2E_ENV.STORAGE_LOCAL_DIR, { recursive: true, force: true });
   const sql = postgres(E2E_ENV.DATABASE_ADMIN_URL, { max: 1, onnotice: () => {} });

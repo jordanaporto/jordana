@@ -59,5 +59,28 @@ export async function processNotifications(send: Sender = webpush.sendNotificati
     }
     await asSystem((sql) => sql`select app.push_result(${r.subscription_id}, ${ok}, ${gone})`);
   }
-  return { sent, attempted: rows.length };
+  // avisos para clientes que ativaram no link de acompanhamento
+  const customers = (await asSystem((sql) => sql`select * from app.tracking_notifications_claim(100)`)) as unknown as (Omit<Row, "url"> & { token: string })[];
+  for (const r of customers) {
+    let ok = false;
+    let gone = false;
+    if (!isAllowedEndpoint(r.endpoint)) {
+      gone = true;
+    } else {
+      try {
+        await send(
+          { endpoint: r.endpoint, keys: { p256dh: r.p256dh, auth: r.auth } },
+          JSON.stringify({ title: r.title, body: r.body ?? "", url: `/acompanhar/${r.token}`, tag: `c${r.notification_id}`, icon: brand.icon192 }),
+          { vapidDetails: { subject: cfg.subject, publicKey: cfg.publicKey, privateKey: cfg.privateKey }, TTL: 12 * 3600, urgency: "normal" },
+        );
+        ok = true;
+        sent++;
+      } catch (e) {
+        const code = (e as { statusCode?: number }).statusCode;
+        gone = code === 404 || code === 410;
+      }
+    }
+    await asSystem((sql) => sql`select app.tracking_push_result(${r.subscription_id}, ${ok}, ${gone})`);
+  }
+  return { sent, attempted: rows.length + customers.length };
 }

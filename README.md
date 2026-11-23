@@ -31,6 +31,7 @@ Primeira oficina atendida: **Injecar Auto Center** (Castanhal-PA).
 | LGPD | Exportar dados do cliente, anonimizar (inclusive na auditoria), coleta mínima |
 | Agenda | Agendamento com confirmação no WhatsApp na hora, lembrete 1 dia antes e 2 horas antes; reagendar, falta, cancelamento e “chegou → abrir OS” |
 | Avisos no celular | Notificações para a equipe: carro atribuído, serviço aprovado, diagnóstico/serviço concluído, aguardando peça, alertas |
+| Link do cliente | Página de acompanhamento sem login: etapas, fotos, diagnóstico, orçamento com aprovação por item e avisos gratuitos no celular do cliente |
 | PWA | Instala na tela inicial do celular |
 
 ## Documentação

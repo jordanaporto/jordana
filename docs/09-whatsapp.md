@@ -22,7 +22,7 @@ Configure em **Administração → Mensagens do WhatsApp**. Já vêm prontas:
 | Pronto para retirada | “Seu veículo está pronto…” |
 | Entregue (desativada) | Agradecimento |
 
-Variáveis: `{nome}` (primeiro nome), `{nome_completo}`, `{modelo}`, `{marca}`, `{placa}`, `{numero_os}`, `{oficina}`.
+Variáveis: `{nome}` (primeiro nome), `{nome_completo}`, `{modelo}`, `{marca}`, `{placa}`, `{numero_os}`, `{oficina}`, `{link}` (link de acompanhamento do cliente).
 
 ## Agenda: confirmação e lembretes
 
@@ -71,7 +71,8 @@ Modelos sem nome da Meta continuam saindo pelo modo manual — dá para migrar a
 
 A Meta cobra por mensagem de modelo entregue (categoria Utilidade é a mais barata). Consulte a tabela vigente para o Brasil em developers.facebook.com/docs/whatsapp/pricing.
 
+**Para gastar pouco ou nada:** use o **link de acompanhamento** (ver Manual). Basta mandar o link uma vez (ele já vai na mensagem de *veículo recebido*, que pode sair pelo envio manual gratuito `wa.me`). Depois disso, o cliente acompanha tudo, aprova o orçamento e recebe avisos no celular pela própria página — sem custo por mensagem. A variável `{link}` pode ser usada em qualquer mensagem automática.
+
 ## Preparado para a versão 2
 
-- **Aprovação por link**: o método `link` já existe no registro de aprovações.
 - **Respostas do cliente**: todos os eventos do webhook já ficam guardados (`app.whatsapp_webhook_events`).

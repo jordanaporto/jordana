@@ -87,6 +87,33 @@ describe("entrega dos avisos (Web Push)", () => {
     expect(await db.owner`select 1 from app.push_subscriptions where endpoint like '%aparelho1'`).toHaveLength(0);
   });
 
+  it("cliente que ativou avisos no link recebe cada etapa no celular", async () => {
+    respondWith = 201;
+    received = [];
+    const atend = await db.createUser("ana", "atendimento");
+    const id = await db.as(atend, async (sql) => {
+      const [c] = await sql`insert into customers (name, whatsapp, whatsapp_opt_in) values ('Maria Souza', '+5591988887777', true) returning id`;
+      const [v] = await sql`insert into vehicles (customer_id, plate, brand, model) values (${c.id}, 'PSH1A23', 'Chevrolet', 'Onix') returning id`;
+      const [o] = await sql`select app.open_service_order(${c.id}, ${v.id}, 1000, ${mec.id}, 'Barulho', null) as id`;
+      return o.id as string;
+    });
+    const [{ token }] = await db.owner`select token from tracking_links where service_order_id = ${id} and revoked_at is null`;
+    const k = browserKeys();
+    await db.as(null, (sql) => sql`select app.tracking_subscribe(${token}, ${base + "/push/cliente1"}, ${k.p256dh}, ${k.auth}, 'teste')`);
+    await db.as(mec, (sql) => sql`select app.change_status(${id}, 'em_inspecao'::os_status, null)`);
+    const { processNotifications } = await import("@/lib/push");
+    const r = await processNotifications(send);
+    // "avisos ativados" + "em inspeção"
+    expect(r.sent).toBeGreaterThanOrEqual(2);
+    const toClient = received.filter((x) => x.path === "/push/cliente1");
+    expect(toClient).toHaveLength(2);
+    expect(toClient[0].headers["content-encoding"]).toBe("aes128gcm");
+    const pend = await db.owner`select count(*)::int as n from app.tracking_notifications where sent_at is null`;
+    expect(pend[0].n).toBe(0);
+    const [s] = await db.owner`select last_success_at from app.tracking_subscriptions where endpoint like '%cliente1'`;
+    expect(s.last_success_at).not.toBeNull();
+  });
+
   it("só aceita endereços dos serviços oficiais de push em produção", async () => {
     const { isAllowedEndpoint } = await import("@/lib/push");
     process.env.PUSH_ALLOW_ANY_ENDPOINT = "false";

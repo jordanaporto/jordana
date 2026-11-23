@@ -157,7 +157,7 @@ test.describe.serial("fluxo completo da OS", () => {
 
     await advance(page, "Enviar ao cliente");
     await page.goto("/mensagens");
-    await expect(page.getByText("Concluímos a avaliação do seu veículo")).toBeVisible();
+    await expect(page.locator("li").filter({ hasText: "Maria Souza" }).getByText("Concluímos a avaliação do seu veículo")).toBeVisible();
 
     await page.goto(`${orderUrl}/servicos`);
     const pads = page.locator("div.rounded-2xl").filter({ has: page.getByRole("heading", { name: "Troca de pastilhas dianteiras" }) });
@@ -197,7 +197,7 @@ test.describe.serial("fluxo completo da OS", () => {
     const page = await as(browser, "ana");
     await advance(page, "Liberar para retirada");
     await page.goto("/mensagens");
-    await expect(page.getByText("Seu veículo está pronto")).toBeVisible();
+    await expect(page.locator("li").filter({ hasText: "Maria Souza" }).getByText("Seu veículo está pronto")).toBeVisible();
 
     await page.goto(`${orderUrl}/relatorio`);
     await page.getByRole("button", { name: "Gerar relatório em PDF" }).click();

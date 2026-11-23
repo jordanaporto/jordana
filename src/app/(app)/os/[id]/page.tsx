@@ -5,13 +5,17 @@ import { can } from "@/lib/roles";
 import { dateTime, money } from "@/lib/format";
 import { Card, DefinitionList, SectionTitle, Stat } from "@/components/ui";
 import { AssignMechanicForm, EditOrderForm, NoteForm } from "./summary-forms";
+import { TrackingCard } from "./tracking-card";
 
 export default async function OrderSummary({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { user, order, canEdit } = await getOrderContext(id);
   const staff = can.staff(user.role);
 
-  const { notes, mechanics, previous } = await asUser(user.id, async (sql) => ({
+  const { notes, mechanics, previous, tracking } = await asUser(user.id, async (sql) => ({
+    tracking: staff
+      ? ((await sql`select * from app.tracking_info(${id})`)[0] ?? null)
+      : null,
     notes: await sql`
       select n.body, n.created_at, n.is_system, p.full_name from service_order_notes n
         left join profiles p on p.id = n.author_id where n.service_order_id = ${id} order by n.created_at desc`,
@@ -49,6 +53,22 @@ export default async function OrderSummary({ params }: { params: Promise<{ id: s
           </Link>
         )}
       </Card>
+
+      {staff && tracking && order.status !== "entregue" && order.status !== "cancelada" && (
+        <>
+          <SectionTitle>Link de acompanhamento do cliente</SectionTitle>
+          <Card>
+            <TrackingCard
+              orderId={id}
+              url={tracking.url ?? ""}
+              views={Number(tracking.views ?? 0)}
+              lastViewed={tracking.last_viewed ? new Date(tracking.last_viewed).toISOString() : null}
+              subscribers={Number(tracking.subscribers ?? 0)}
+              canSendWhatsapp={Boolean(order.customer_whatsapp_opt_in)}
+            />
+          </Card>
+        </>
+      )}
 
       {staff && canEdit && (
         <>

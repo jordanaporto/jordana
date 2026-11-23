@@ -231,3 +231,28 @@ export async function deleteMediaAction(_prev: ActionState, fd: FormData): Promi
     return { ok: true, message: "Arquivo removido da galeria (mantido no histórico de auditoria)" };
   });
 }
+
+// ------------------------------------------------------------------ link de acompanhamento
+export async function sendTrackingLink(orderId: string): Promise<{ ok: boolean; error?: string }> {
+  const user = await requireUser(STAFF);
+  if (!z.uuid().safeParse(orderId).success) return { ok: false, error: "OS inválida" };
+  try {
+    await asUser(user.id, (sql) => sql`select app.enqueue_tracking_message(${orderId})`);
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendlyError(e) };
+  }
+}
+
+export async function regenerateTrackingLink(orderId: string): Promise<{ ok: boolean; error?: string }> {
+  const user = await requireUser(STAFF);
+  if (!z.uuid().safeParse(orderId).success) return { ok: false, error: "OS inválida" };
+  try {
+    await asUser(user.id, (sql) => sql`select app.tracking_regenerate(${orderId})`);
+    refresh(orderId);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendlyError(e) };
+  }
+}
