@@ -110,4 +110,13 @@ describe("link de acompanhamento", () => {
     await db.owner`update tracking_links set expires_at = now() - interval '1 minute' where token = ${token}`;
     expect(await view(token)).toBeNull();
   });
+  it("OS antiga sem link ganha um ao abrir a ficha; mecânico não vê o resumo do link", async () => {
+    const id = await order();
+    await db.owner`delete from tracking_links where service_order_id = ${id}`;
+    const [info] = await db.as(atend, (sql) => sql`select * from app.tracking_info(${id})`);
+    expect(info.url).toMatch(/^https:\/\/oficina\.exemplo\/acompanhar\/[a-f0-9]{64}$/);
+    expect(info.views).toBe(0);
+    expect(info.subscribers).toBe(0);
+    await expect(db.as(mec, (sql) => sql`select * from app.tracking_info(${id})`)).rejects.toThrow();
+  });
 });
