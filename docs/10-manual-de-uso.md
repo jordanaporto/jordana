@@ -79,6 +79,19 @@ Tocar no aviso abre a OS direto na aba certa. Quem fez a ação não recebe avis
 
 **Indicadores**: carros atendidos, entregues, faturamento executado, ticket médio, tempo médio de diagnóstico e de aprovação, taxa de aprovação, produtividade por mecânico, faturamento por OS — por período (7, 30, 90 dias, 12 meses).
 
+## Proteções do orçamento (contra fraude)
+
+As regras abaixo ficam no próprio banco de dados — valem mesmo que alguém tente burlar a tela.
+
+| Quem | Pode | Não pode |
+|------|------|----------|
+| Mecânico | Cadastrar serviços sugeridos (entram **sem valor**); corrigir nome/peça/quantidade só até o orçamento ser preparado; registrar execução de serviço **aprovado** | Ver ou colocar valores; mudar serviço depois que o orçamento foi preparado; aprovar, recusar ou remover serviço; marcar como executado algo não aprovado |
+| Atendimento | Colocar valores e enviar o orçamento; registrar a decisão do cliente | Mudar nome, descrição, peça, quantidade, valor ou prioridade de serviço **já decidido** pelo cliente; remover serviço já decidido |
+| Cliente (link) | Aprovar ou recusar cada serviço enquanto o orçamento está aguardando aprovação | Decidir fora dessa etapa |
+| Administrador | Corrigir serviço já decidido (exceção) | Fazer isso sem deixar rastro: a alteração aparece nas **Observações da OS** com o valor aprovado e o novo, e na **Auditoria** |
+
+O valor aprovado fica **congelado** no registro da decisão (quem registrou, forma, data/hora e valor) e esse registro não pode ser editado nem apagado por ninguém. Todo o resto (quem cadastrou, quem executou, cada alteração antes → depois) fica na Auditoria.
+
 ## Perguntas frequentes
 
 - **Esqueci a senha** → o administrador redefine em Administração → Usuários.

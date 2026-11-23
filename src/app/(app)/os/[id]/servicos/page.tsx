@@ -14,6 +14,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ id: s
   const seePrices = can.seePrices(user.role);
   const editPrices = can.editPrices(user.role);
   const staff = can.staff(user.role);
+  // depois que o orçamento é preparado o mecânico só sugere serviços novos (regra também no banco)
+  const mechanicLocked = user.role === "mecanico" && !["recebido", "em_inspecao", "em_diagnostico", "diagnostico_concluido"].includes(order.status);
 
   const { items, decisions, media } = await asUser(user.id, async (sql) => {
     const items = await sql`
@@ -124,7 +126,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ id: s
                   <div className="flex flex-wrap gap-2">
                     <MediaUploader orderId={id} link={{ service_item_id: it.id }} variant="compact" />
                   </div>
-                  {(pending || user.role === "admin") && (
+                  {((pending && !mechanicLocked) || user.role === "admin") && (
                     <details>
                       <summary className="cursor-pointer text-sm font-semibold text-brand">Editar serviço</summary>
                       <div className="mt-3">
