@@ -48,7 +48,7 @@ Primeira oficina atendida: **Injecar Auto Center** (Castanhal-PA).
 | [8. Implantação](docs/08-implantacao.md) | Colocar no ar (Docker), backups, desenvolvimento local |
 | [9. WhatsApp](docs/09-whatsapp.md) | Modo manual e ativação da Cloud API |
 | [10. Manual de uso](docs/10-manual-de-uso.md) | Passo a passo por perfil |
-| [11. Demonstração online](docs/11-demonstracao.md) | https://injecar-demo.netlify.app (Netlify + Supabase, grátis) |
+| [11. Demonstração online](docs/11-demonstracao.md) | https://injecar-servicos.netlify.app (Netlify + Supabase, grátis) |
 | [12. Nova oficina](docs/12-nova-oficina.md) | Como instalar para outra oficina (nome, logo, cor) |
 
 ## Rodar localmente

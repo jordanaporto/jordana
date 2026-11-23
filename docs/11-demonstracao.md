@@ -1,6 +1,6 @@
 # 11. Demonstração online (gratuita)
 
-Endereço: **https://injecar-demo.netlify.app**
+Endereço: **https://injecar-servicos.netlify.app**
 
 Usuários de demonstração (senha `Injecar2026`): `admin`, `ana` (atendimento), `joao` e `carlos` (mecânicos), `dono` (gestão).
 Os dados são fictícios. Não cadastre clientes reais na demonstração.
@@ -9,8 +9,8 @@ Os dados são fictícios. Não cadastre clientes reais na demonstração.
 
 | Parte | Serviço (plano grátis) |
 |-------|------------------------|
-| Telas e servidor | Netlify, projeto `injecar-demo` |
-| Banco de dados | Supabase, projeto `injecar-demo` (São Paulo) |
+| Telas e servidor | Netlify, projeto `injecar-servicos` |
+| Banco de dados | Supabase, projeto `injecar-demo` (São Paulo; nome interno, não aparece para ninguém) |
 | Fotos e PDFs | Netlify Blobs (armazenamento privado do Netlify) |
 | Lembretes e avisos | Função agendada `tarefas` do Netlify (a cada minuto) |
 
